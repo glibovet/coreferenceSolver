@@ -1,0 +1,36 @@
+.pCorref { padding:3px; border:1px dashed black;position:relative; }
+.groupPopup {
+    position:absolute;
+    background-color: gray;
+    padding:10px;
+    color:white;
+
+    top:0;
+    right:0;
+
+    width:600px;
+
+}
+
+.subGpron {
+    background-color: #ffb789;
+}
+
+.subGverb{
+    background-color: #6252ff;
+}
+.context {
+    position:absolute;
+    padding:2px 20px;
+    border:1px solid #c7c7c7;
+    background-color:#c7c7c7;
+    z-index:10;
+}
+
+.context textarea {
+
+    width:600px;
+    height:300px;
+}
+
+

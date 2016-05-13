@@ -17,16 +17,20 @@ public class Rule {
         return this.name;
     }
 
-    public Rule(String name, String tag) {
-        this.name = name;
+    public Rule(String tag) {
         this.then(tag);
     }
 
-    public Rule(String name, RuleOperation op) {
-        this.name = name;
+    public Rule(RuleOperation op) {
         this.then(op);
     }
 
+    
+    public Rule name(String name) {
+        this.name = name;
+        return this;
+    }
+    
     public Rule() {
         this.name = "ANONYMOUS_RULE";
     }
@@ -41,19 +45,6 @@ public class Rule {
 
     public Rule then(RuleOperation op) {
         return this.then(1, op);
-    }
-
-    private int paddingLeft = 0;
-    private int paddingRight = 0;
-
-    public Rule paddingLeft(int count) {
-        this.paddingLeft = count;
-        return this;
-    }
-
-    public Rule paddingRight(int count) {
-        this.paddingRight = count;
-        return this;
     }
 
     public Rule then(int times, RuleOperation op) {
@@ -105,12 +96,6 @@ public class Rule {
             return false;
         }
 
-        if (this.paddingLeft > 0 && (position + ruleOffset - this.paddingLeft) >= 0) {
-            for (int p = this.paddingLeft; p > 0; p--) {
-                this.lastMatch.add(currentPipeline.tokens.getTokens().get(position + ruleOffset - p));
-            }
-        }
-
         for (RuleOperation curOp : this.operations) {
             Token curToken = currentPipeline.tokens.getTokens().get(position + ruleOffset);
             if (!curOp.check(curToken)) {
@@ -118,12 +103,6 @@ public class Rule {
             }
             this.lastMatch.add(curToken);
             ruleOffset++;
-        }
-
-        if (this.paddingRight > 0 && (position + ruleOffset + this.paddingRight) <= currentPipeline.length) {
-            for (int p = 0; p < this.paddingRight; p++) {
-                this.lastMatch.add(currentPipeline.tokens.getTokens().get(position + ruleOffset + p));
-            }
         }
 
         currentPipeline.skip(this.operations.size() - 1);

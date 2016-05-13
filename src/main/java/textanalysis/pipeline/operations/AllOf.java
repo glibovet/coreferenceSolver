@@ -12,6 +12,14 @@ public class AllOf extends RuleOperation {
         this.rules = rules;
     }
 
+    public AllOf(String... hasTagRules) {
+        this.rules = new RuleOperation[hasTagRules.length];
+        int index = 0;
+        for (String it : hasTagRules) {
+            this.rules[index++] = new HasTag(it);
+        }
+    }
+
     @Override
     public boolean check(Token token) {
         for (RuleOperation curRule : this.rules) {

@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Random;
 
 import org.languagetool.*;
-import org.languagetool.language.Ukrainian;
+import org.languagetool.language.*;
+
 import textanalysis.framework.Client;
 import textanalysis.framework.Route;
 import textanalysis.framework.Server;
@@ -98,18 +99,25 @@ public class Main {
                     JLanguageTool langTool = new JLanguageTool(new Ukrainian());
 
                     // noun rules 
-                    Rule nounAdjAny = new Rule("noun_adj_rodoviy", "noun").then("adj").then(new Any());
-                    Rule nounAdj = new Rule("noun_adj", "noun").then("adj");
-                    Rule adjectiveNoun = new Rule("adj_noun", "adj").then("noun");
-                    Rule longNouns = new Rule("adj_2nouns", "adj").then(2, "noun");
-                    Rule lngNAN = new Rule("middle_adj", "noun").then("adj").then("noun");
-                    Rule outerNoun = new Rule("outer_noun", "noun").then(new Any()).then("noun");
-
-                    Rule pronoun = new Rule("pronoun", "pron");
-                    Rule pron_verb = new Rule("pron_noun", "pron").then("verb");
-
-                    Rule verb = new Rule("verb", new OneOf(new HasTag("verb"), new HasTag("adjp"), new HasTag("advp")));
-
+                    Rule nounAdjAny = new Rule("noun").then(new AllOf("adj","n_rod")).then(new Any())
+                            .name("noun_adj_rodoviy");
+                    Rule nounAdj = new Rule("noun").then("adj")
+                            .name("noun_adj");
+                    Rule adjectiveNoun = new Rule("adj").then("noun")
+                            .name("adj_noun");
+                    Rule longNouns = new Rule("adj").then(2, "noun")
+                            .name("adj_2nouns");
+                    Rule lngNAN = new Rule("noun").then("adj").then("noun")
+                            .name("middle_adj");
+                    Rule outerNoun = new Rule("noun").then(new Any()).then("noun")
+                            .name("outer_noun");
+                    Rule pronoun = new Rule("pron")
+                            .name("pronoun");
+                    Rule pron_verb = new Rule("pron").then("verb")
+                            .name("pron_noun");
+                    Rule verb = new Rule(new OneOf(new HasTag("verb"), new HasTag("adjp"), new HasTag("advp")))
+                            .name("verb");
+                    
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
 
                     StringBuilder outputBuffer = new StringBuilder();

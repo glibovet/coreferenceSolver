@@ -1,10 +1,6 @@
 package textanalysis.pipeline;
 
 import textanalysis.PosTagBag;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
 import org.languagetool.AnalyzedToken;
 
 public class Token {

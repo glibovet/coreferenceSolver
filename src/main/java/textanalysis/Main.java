@@ -37,6 +37,43 @@ public class Main {
 
         try {
 
+            JLanguageTool langTool = new MultiThreadedJLanguageTool(new Ukrainian());
+            langTool.analyzeText("test sentence to load all libs");
+
+            Rule nounGather = new Rule("adj").then("noun").then("prep").then("noun")
+                    .name("noun_with_prep");
+
+            Rule nounAdjAny = new Rule("noun").then(new AllOf("adj", "n_rod")).then(new Any())
+                    .name("noun_adj_rodoviy");
+            Rule nounAdj = new Rule("noun").then("adj")
+                    .name("noun_adj");
+            Rule adjectiveNoun = new Rule("adj").then("noun")
+                    .name("adj_noun");
+
+            Rule nns = new Rule("noun").then(new AllOf(new HasTag("noun"), new OneOf("v_rod","v_dav","v_zna"))).then(new OneOf(new HasTag("noun"), new Any()))
+                    .name("nouns_rodoviy_any");
+
+            Rule longNouns = new Rule("adj").then(2, "noun")
+                    .name("adj_2nouns");
+            Rule lngNAN = new Rule("noun").then("adj").then("noun")
+                    .name("middle_adj");
+
+            Rule outerNoun = new Rule("noun").then(new Any()).then("noun")
+                    .name("outer_noun");
+
+            Rule nouns = new Rule("noun").then(new AllOf("noun", "v_rod"))
+                    .name("two_nouns");
+
+            Rule pronoun = new Rule("pron")
+                    .name("pronoun");
+            Rule pron_verb = new Rule("pron").then("verb")
+                    .name("pron_noun");
+            Rule verb = new Rule(new OneOf(new HasTag("verb"), new HasTag("adjp"), new HasTag("advp")))
+                    .name("verb");
+            
+            Rule noun = new Rule("noun").name("noun");
+            
+
             Server web = new Server(8080);
 
             web.register(new Route("/home", (Client c) -> {
@@ -65,8 +102,6 @@ public class Main {
 
                 try {
 
-                    JLanguageTool langTool = new JLanguageTool(new Ukrainian());
-
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
 
                     StringBuilder outputBuffer = new StringBuilder();
@@ -93,31 +128,11 @@ public class Main {
             }));
 
             web.register(new Route("/analyze", "POST", (Client c) -> {
+                long startTime = System.currentTimeMillis();
 
                 try {
 
-                    JLanguageTool langTool = new JLanguageTool(new Ukrainian());
-
                     // noun rules 
-                    Rule nounAdjAny = new Rule("noun").then(new AllOf("adj","n_rod")).then(new Any())
-                            .name("noun_adj_rodoviy");
-                    Rule nounAdj = new Rule("noun").then("adj")
-                            .name("noun_adj");
-                    Rule adjectiveNoun = new Rule("adj").then("noun")
-                            .name("adj_noun");
-                    Rule longNouns = new Rule("adj").then(2, "noun")
-                            .name("adj_2nouns");
-                    Rule lngNAN = new Rule("noun").then("adj").then("noun")
-                            .name("middle_adj");
-                    Rule outerNoun = new Rule("noun").then(new Any()).then("noun")
-                            .name("outer_noun");
-                    Rule pronoun = new Rule("pron")
-                            .name("pronoun");
-                    Rule pron_verb = new Rule("pron").then("verb")
-                            .name("pron_noun");
-                    Rule verb = new Rule(new OneOf(new HasTag("verb"), new HasTag("adjp"), new HasTag("advp")))
-                            .name("verb");
-                    
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
 
                     StringBuilder outputBuffer = new StringBuilder();
@@ -130,19 +145,26 @@ public class Main {
                         @Override
                         public void handle() {
 
+                            checkRule(nounGather);
                             checkRule(pron_verb);
 
                             checkRule(longNouns);
+                            
+                            checkRule(nns);
+                            
                             checkRule(lngNAN);
                             checkRule(nounAdjAny);
-                            checkRule(outerNoun);
+//                            checkRule(outerNoun);
                             checkRule(nounAdj);
                             checkRule(adjectiveNoun);
+                            checkRule(nouns);
 
-//                            checkRule(verb);
+                            checkRule(verb);
                             checkRule(pronoun);
+                            checkRule(noun);
 
                             if (!RuleMatched) {
+
                                 tokensOutput.add(Current.getToken().getToken());
                             } else {
 
@@ -155,6 +177,10 @@ public class Main {
                     pipeline.start();
 
                     outputBuffer.append(String.join(" ", tokensOutput));
+
+                    long stopTime = System.currentTimeMillis();
+                    long elapsedTime = stopTime - startTime;
+                    System.out.println(elapsedTime);
 
                     return "<html>"
                             + "<head>"
@@ -177,6 +203,7 @@ public class Main {
                     System.out.println(e.getMessage());
                     return "error";
                 }
+
             }));
 
             web.start();

@@ -1,5 +1,7 @@
 package textanalysis.pipeline.operations;
 
+import java.util.Arrays;
+import java.util.HashSet;
 import textanalysis.pipeline.RuleOperation;
 import textanalysis.pipeline.Token;
 

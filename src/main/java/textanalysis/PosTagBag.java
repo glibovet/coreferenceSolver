@@ -1,23 +1,36 @@
 package textanalysis;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 
 public class PosTagBag implements Iterable {
 
+    private static HashSet<String> partOfSpeechTags = new HashSet<>(Arrays.asList(
+            "noun", "pron", "verb", "adj",
+            "adjp", "adv", "advp", "prep",
+            "predic", "insert", "impers", "conj",
+            "part", "excl", "numr")
+    );
+
     private HashSet<String> tags = new HashSet<String>();
+
+    private boolean determinedPartOfSpeech = false;
 
     public void add(String input) {
         if (input != null && !input.isEmpty()) {
             String[] tagArray = input.split(":");
             for (String it : tagArray) {
-                //    if (it.startsWith("&")) {
-//                    this.tags.add(it.substring(1));
-                //  } else {
-                this.tags.add(it);
-                //}
+                if (it.startsWith("&")) {
+                    this.tags.add(it);
+                } else {
+                    if (PosTagBag.partOfSpeechTags.contains(it)) {
+                        this.determinedPartOfSpeech = true;
+                    }
+                    this.tags.add(it);
+                }
             }
         }
     }
@@ -25,11 +38,11 @@ public class PosTagBag implements Iterable {
     public PosTagBag(String input) {
         this.add(input);
     }
-    
+
     // add some tricks from possibility theory
     public boolean hasTag(String tagName) {
         boolean first = this.tags.contains(tagName);
-        if (!first) {
+        if (!first && !this.determinedPartOfSpeech) {
             return this.tags.contains("&" + tagName);
         } else {
             return first;

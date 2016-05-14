@@ -12,6 +12,14 @@ public class OneOf extends RuleOperation {
         this.rules = rules;
     }
 
+    public OneOf(String... tags) {
+        this.rules = new RuleOperation[tags.length];
+        int index = 0;
+        for (String it : tags) {
+            this.rules[index++] = new HasTag(it);
+        }
+    }
+
     @Override
     public boolean check(Token token) {
         for (RuleOperation curRule : this.rules) {

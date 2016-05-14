@@ -11,6 +11,9 @@ import org.languagetool.language.*;
 import textanalysis.framework.Client;
 import textanalysis.framework.Route;
 import textanalysis.framework.Server;
+import textanalysis.parser.FrequencyCalculator;
+
+import textanalysis.parser.Parser;
 
 import textanalysis.pipeline.Rule;
 import textanalysis.pipeline.StepHandler;
@@ -20,17 +23,9 @@ import textanalysis.pipeline.operations.*;
 
 public class Main {
 
-    public static String getHexColor() {
-
-        int RANDOM_HEX_LENGTH = 6;
-
-        Random randomService = new Random();
-        StringBuilder sb = new StringBuilder();
-        while (sb.length() < RANDOM_HEX_LENGTH) {
-            sb.append(Integer.toHexString(randomService.nextInt()));
-        }
-        sb.setLength(RANDOM_HEX_LENGTH);
-        return sb.toString();
+    public static void mains(String[] args) throws IOException {
+        Parser zikParser = new Parser();
+        zikParser.parse();
     }
 
     public static void main(String[] args) throws IOException {
@@ -38,7 +33,11 @@ public class Main {
         try {
 
             JLanguageTool langTool = new MultiThreadedJLanguageTool(new Ukrainian());
+            FrequencyCalculator calc = new FrequencyCalculator("src/main/resources/tf.json");
+            
             langTool.analyzeText("test sentence to load all libs");
+
+            System.out.println("Base Started");
 
             Rule nounGather = new Rule("adj").then("noun").then("prep").then("noun")
                     .name("noun_with_prep");
@@ -50,7 +49,7 @@ public class Main {
             Rule adjectiveNoun = new Rule("adj").then("noun")
                     .name("adj_noun");
 
-            Rule nns = new Rule("noun").then(new AllOf(new HasTag("noun"), new OneOf("v_rod","v_dav","v_zna"))).then(new OneOf(new HasTag("noun"), new Any()))
+            Rule nns = new Rule("noun").then(new AllOf(new HasTag("noun"), new OneOf("v_rod", "v_dav", "v_zna"))).then(new OneOf(new HasTag("noun"), new Any()))
                     .name("nouns_rodoviy_any");
 
             Rule longNouns = new Rule("adj").then(2, "noun")
@@ -70,20 +69,13 @@ public class Main {
                     .name("pron_noun");
             Rule verb = new Rule(new OneOf(new HasTag("verb"), new HasTag("adjp"), new HasTag("advp")))
                     .name("verb");
-            
+
             Rule noun = new Rule("noun").name("noun");
-            
 
             Server web = new Server(8080);
 
             web.register(new Route("/home", (Client c) -> {
 
-//                ObjectMapper om = new ObjectMapper();
-//                try {
-//                    System.out.println(om.writeValueAsString(c.Request));
-//                } catch (JsonProcessingException ex) {
-//                    Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
-//                }
                 return "<html>"
                         + "<head>"
                         + "  <meta charset=\"utf-8\">"
@@ -103,7 +95,7 @@ public class Main {
                 try {
 
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
-
+                    
                     StringBuilder outputBuffer = new StringBuilder();
 
                     ArrayList<String> tokensOutput = new ArrayList<>();
@@ -134,7 +126,8 @@ public class Main {
 
                     // noun rules 
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
-
+                    calc.calculateTf(sentences);
+                    
                     StringBuilder outputBuffer = new StringBuilder();
                     StringBuilder outputHeader = new StringBuilder();
 
@@ -145,27 +138,35 @@ public class Main {
                         @Override
                         public void handle() {
 
-                            checkRule(nounGather);
-                            checkRule(pron_verb);
-
-                            checkRule(longNouns);
-                            
-                            checkRule(nns);
-                            
-                            checkRule(lngNAN);
-                            checkRule(nounAdjAny);
-//                            checkRule(outerNoun);
-                            checkRule(nounAdj);
-                            checkRule(adjectiveNoun);
-                            checkRule(nouns);
-
-                            checkRule(verb);
-                            checkRule(pronoun);
-                            checkRule(noun);
+//                            checkRule(nounGather);
+//                            checkRule(pron_verb);
+//
+//                            checkRule(longNouns);
+//
+//                            checkRule(nns);
+//
+//                            checkRule(lngNAN);
+//                            checkRule(nounAdjAny);
+////                            checkRule(outerNoun);
+//                            checkRule(nounAdj);
+//                            checkRule(adjectiveNoun);
+//                            checkRule(nouns);
+//
+//                            checkRule(verb);
+//                            checkRule(pronoun);
+//                            checkRule(noun);
 
                             if (!RuleMatched) {
-
-                                tokensOutput.add(Current.getToken().getToken());
+                                
+                                String lemma = Current.getToken().getLemma();
+                                if (lemma == null) {
+                                    lemma = Current.getToken().getToken();
+                                }
+                                
+                                double tfidf = calc.calculateTfIdf(lemma);
+                                double percent = (0.2/tfidf)/100;
+                                
+                                tokensOutput.add("<span style='background-color:rgba(127,191,63,"+percent+")'>"+Current.getToken().getToken()+"</span>");
                             } else {
 
                                 tokensOutput.add("<span class='pCorref subG" + MatchedRule.getName().substring(0, 4) + " correfGrou" + Pipeline.sentenceIndex + "'><span>" + MatchedRule.lastMatches().toString() + "</span><div class=groupPopup style=display:none>[" + MatchedRule.getName() + ":" + MatchedRule.lastMatches().toStringAdvanced() + "]</div></span>");
@@ -211,5 +212,18 @@ public class Main {
         } catch (Exception e) {
             System.out.println("Error ocurred:" + e.getMessage());
         }
+    }
+
+    public static String getHexColor() {
+
+        int RANDOM_HEX_LENGTH = 6;
+
+        Random randomService = new Random();
+        StringBuilder sb = new StringBuilder();
+        while (sb.length() < RANDOM_HEX_LENGTH) {
+            sb.append(Integer.toHexString(randomService.nextInt()));
+        }
+        sb.setLength(RANDOM_HEX_LENGTH);
+        return sb.toString();
     }
 }

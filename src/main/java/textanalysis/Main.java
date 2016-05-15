@@ -35,10 +35,6 @@ public class Main {
             JLanguageTool langTool = new MultiThreadedJLanguageTool(new Ukrainian());
             FrequencyCalculator calc = new FrequencyCalculator("src/main/resources/tf.json");
 
-            langTool.analyzeText("test sentence to load all libs");
-
-            System.out.println("Base Started");
-
             Rule nounGather = new Rule("adj").then("noun").then("prep").then("noun")
                     .name("noun_with_prep");
 

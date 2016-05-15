@@ -63,16 +63,16 @@ public class Main {
             Rule lngNAN = new Rule("noun").then("adj").then("noun")
                     .name("noun_middle_adj");
 
-            Rule outerNoun = new Rule("noun").then(new Any()).then("noun")
-                    .name("noun_outer_noun");
+//            Rule outerNoun = new Rule("noun").then(new Any()).then("noun")
+//                    .name("noun_outer_noun");
 
             Rule nouns = new Rule("noun").then(new AllOf("noun", "v_rod"))
                     .name("noun_two_nouns");
 
-            Rule pronoun = new Rule("pron")
-                    .name("pronoun");
-            Rule pron_verb = new Rule("pron").then("verb")
-                    .name("pron_noun");
+            Rule pronoun = new Rule(new SoftTag("pron"))
+                    .name("noun_pronoun");
+//            Rule pron_verb = new Rule("pron").then("verb")
+//                    .name("noun_pron_noun");
             Rule verb = new Rule(new OneOf(new HasTag("verb"), new HasTag("adjp"), new HasTag("advp")))
                     .name("verb");
 
@@ -158,7 +158,7 @@ public class Main {
                                 checkRule(longAdjectivePerson);
                                 checkRule(nounGather);
                                 checkRule(adjectivePerson);
-                                checkRule(pron_verb);
+//                                checkRule(pron_verb);
                                 checkRule(longNouns);
                                 checkRule(nns);
                                 checkRule(lngNAN);

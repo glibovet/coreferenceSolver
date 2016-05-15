@@ -129,7 +129,6 @@ public class Main {
                 long startTime = System.currentTimeMillis();
 
                 try {
-
                     // noun rules 
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
                     calc.calculateTf(sentences);

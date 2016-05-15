@@ -137,8 +137,15 @@ public class FrequencyCalculator {
     }
 
     public double calculateTfIdf(String word) {
+        
+        double defaultCoeff = 0.0001;
+        
+        if (word.length() < 3) {
+            return defaultCoeff;
+        }
+
         word = word.trim();
-        return this.termFrequency.getOrDefault(word,0.0)*this.inverseDocumentFrequency.getOrDefault(word,1.0);
+        return this.termFrequency.getOrDefault(word, defaultCoeff) * this.inverseDocumentFrequency.getOrDefault(word, defaultCoeff);
     }
 
 }

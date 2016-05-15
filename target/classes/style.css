@@ -12,6 +12,27 @@
 
 }
 
+.opButton {
+    
+    border: 1px solid #dfdfdf;
+    border-radius:4px;
+    padding:8px 15px;
+    margin-right:10px;
+    
+    cursor:pointer;
+    font-family:Verdana;
+    font-size:14px;
+    font-weight:bold;
+    
+}
+
+.opButton.btn-on {
+    
+    background-color:#68ed73;
+    
+}
+
+
 .subGpron {
     background-color: #ffb789;
 }

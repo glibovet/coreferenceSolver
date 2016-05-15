@@ -34,7 +34,7 @@ public class Main {
 
             JLanguageTool langTool = new MultiThreadedJLanguageTool(new Ukrainian());
             FrequencyCalculator calc = new FrequencyCalculator("src/main/resources/tf.json");
-            
+
             langTool.analyzeText("test sentence to load all libs");
 
             System.out.println("Base Started");
@@ -42,26 +42,32 @@ public class Main {
             Rule nounGather = new Rule("adj").then("noun").then("prep").then("noun")
                     .name("noun_with_prep");
 
+            Rule adjectivePerson = new Rule("adj").then(new AllOf("noun", "anim")).then("noun").then("noun")
+                    .name("noun_adj_person");
+
+            Rule longAdjectivePerson = new Rule("adj").then("adj").then(new AllOf("noun", "anim")).then("noun").then("noun")
+                    .name("noun_long_adj_person");
+
             Rule nounAdjAny = new Rule("noun").then(new AllOf("adj", "n_rod")).then(new Any())
                     .name("noun_adj_rodoviy");
             Rule nounAdj = new Rule("noun").then("adj")
                     .name("noun_adj");
             Rule adjectiveNoun = new Rule("adj").then("noun")
-                    .name("adj_noun");
+                    .name("noun_adj_noun");
 
-            Rule nns = new Rule("noun").then(new AllOf(new HasTag("noun"), new OneOf("v_rod", "v_dav", "v_zna"))).then(new OneOf(new HasTag("noun"), new Any()))
+            Rule nns = new Rule("noun").then(new AllOf(new HasTag("noun"), new OneOf("v_rod", "v_dav", "v_zna"))).then(new HasTag("noun"))
                     .name("nouns_rodoviy_any");
 
             Rule longNouns = new Rule("adj").then(2, "noun")
-                    .name("adj_2nouns");
+                    .name("noun_adj_2nouns");
             Rule lngNAN = new Rule("noun").then("adj").then("noun")
-                    .name("middle_adj");
+                    .name("noun_middle_adj");
 
             Rule outerNoun = new Rule("noun").then(new Any()).then("noun")
-                    .name("outer_noun");
+                    .name("noun_outer_noun");
 
             Rule nouns = new Rule("noun").then(new AllOf("noun", "v_rod"))
-                    .name("two_nouns");
+                    .name("noun_two_nouns");
 
             Rule pronoun = new Rule("pron")
                     .name("pronoun");
@@ -95,7 +101,7 @@ public class Main {
                 try {
 
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
-                    
+
                     StringBuilder outputBuffer = new StringBuilder();
 
                     ArrayList<String> tokensOutput = new ArrayList<>();
@@ -127,49 +133,52 @@ public class Main {
                     // noun rules 
                     List<AnalyzedSentence> sentences = langTool.analyzeText(c.Request.param("text"));
                     calc.calculateTf(sentences);
-                    
+
                     StringBuilder outputBuffer = new StringBuilder();
                     StringBuilder outputHeader = new StringBuilder();
 
                     ArrayList<String> tokensOutput = new ArrayList<>();
+
+                    Max max = new Max();
+                    max.maxTfIdf = 0.0;
 
                     TokenPipeline pipeline = new TokenPipeline(new TokenBag(sentences), new StepHandler() {
 
                         @Override
                         public void handle() {
 
-//                            checkRule(nounGather);
-//                            checkRule(pron_verb);
-//
-//                            checkRule(longNouns);
-//
-//                            checkRule(nns);
-//
-//                            checkRule(lngNAN);
-//                            checkRule(nounAdjAny);
-////                            checkRule(outerNoun);
-//                            checkRule(nounAdj);
-//                            checkRule(adjectiveNoun);
-//                            checkRule(nouns);
-//
-//                            checkRule(verb);
-//                            checkRule(pronoun);
-//                            checkRule(noun);
+                            String lemma = Current.getToken().getLemma();
+                            if (lemma == null) {
+                                lemma = Current.getToken().getToken();
+                            }
+                            double tfidf = calc.calculateTfIdf(lemma);
+
+                            if (tfidf > 0.02) {
+
+                                checkRule(longAdjectivePerson);
+                                checkRule(nounGather);
+                                checkRule(adjectivePerson);
+                                checkRule(pron_verb);
+                                checkRule(longNouns);
+                                checkRule(nns);
+                                checkRule(lngNAN);
+                                checkRule(nounAdjAny);
+                                checkRule(nounAdj);
+                                checkRule(adjectiveNoun);
+                                checkRule(nouns);
+                                checkRule(noun);
+                            }
+
+                            checkRule(pronoun);
+                            checkRule(verb);
 
                             if (!RuleMatched) {
-                                
-                                String lemma = Current.getToken().getLemma();
-                                if (lemma == null) {
-                                    lemma = Current.getToken().getToken();
+                                if (tfidf > max.maxTfIdf) {
+                                    max.maxTfIdf = tfidf;
                                 }
-                                
-                                double tfidf = calc.calculateTfIdf(lemma);
-                                double percent = (0.2/tfidf)/100;
-                                
-                                tokensOutput.add("<span style='background-color:rgba(127,191,63,"+percent+")'>"+Current.getToken().getToken()+"</span>");
+                                tokensOutput.add("<span class='term' data-tfidf='" + tfidf + "'>" + Current.getToken().getToken() + "</span>");
                             } else {
-
-                                tokensOutput.add("<span class='pCorref subG" + MatchedRule.getName().substring(0, 4) + " correfGrou" + Pipeline.sentenceIndex + "'><span>" + MatchedRule.lastMatches().toString() + "</span><div class=groupPopup style=display:none>[" + MatchedRule.getName() + ":" + MatchedRule.lastMatches().toStringAdvanced() + "]</div></span>");
+                                tokensOutput.add("<span data-group='" + MatchedRule.getName().substring(0, 4) + "' class='group'><span>" + MatchedRule.lastMatches().withTfIdf(calc) + "</span><div class=groupPopup style=display:none>[" + MatchedRule.getName() + ":" + MatchedRule.lastMatches().toStringAdvanced() + "]</div></span>");
                             }
 
                         }
@@ -178,6 +187,7 @@ public class Main {
                     pipeline.start();
 
                     outputBuffer.append(String.join(" ", tokensOutput));
+                    outputBuffer.append("<script> var maxTfIdf =" + max.maxTfIdf + ";</script>");
 
                     long stopTime = System.currentTimeMillis();
                     long elapsedTime = stopTime - startTime;
@@ -191,7 +201,13 @@ public class Main {
                             + "<script>" + Server.readFile("src/main/resources/code.js") + "</script>"
                             + " </head>"
                             + "<body><div class=context style=display:none><div><div class=selectionVal ></div></div><div class=explainResponse></div><div ><input type=button class=explainBtn value=explain></div></div>"
+                            + ""
                             + "<div class='Wrapper' style='line-height:40px;width:860px;margin:0 auto;padding:25px 30px;text-align:justify'>"
+                            + "<div class='operations'>"
+                            + "<a class='opButton op-tfidf'>tf-idf</a>"
+                            + "<a class='opButton op-nps'>Іменовані сутності</a>"
+                            + "<a class='opButton op-verbs'>Дієслова</a>"
+                            + "</div>"
                             + "<style>"
                             + Server.readFile("src/main/resources/style.css")
                             + outputHeader
@@ -226,4 +242,10 @@ public class Main {
         sb.setLength(RANDOM_HEX_LENGTH);
         return sb.toString();
     }
+
+}
+
+class Max {
+
+    double maxTfIdf = 0.0;
 }

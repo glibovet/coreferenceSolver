@@ -1,0 +1,156 @@
+<html><head>  <meta charset='utf-8'>  <title>Correferential solvage</title>
+        <script src=https://code.jquery.com/jquery-2.2.3.min.js></script>
+        <script>
+            $(function () {
+                var maxTfIdf = {{maxTfIdf}}
+                
+                $("body").on('click', function () {
+                    $('.groupPopup').fadeOut();
+                    $('.context').fadeOut();
+                });
+
+                $(".pCorref").on('click', function (e) {
+                    e.stopPropagation();
+                    $(this).find('.groupPopup').fadeIn();
+                })
+
+
+                $('.Wrapper').on('contextmenu', function (e) {
+                    var selection = window.getSelection().toString();
+                    if (selection !== '') {
+                        $('.context').fadeIn().css({"left": e.clientX, "top": e.clientY});
+                        return false;
+                    }
+                })
+
+                $('.Wrapper').mousedown(function (event) {
+
+                    if (event.which == 3) {
+                        event.preventDefault();
+
+                        $.post('/explain', {text: window.getSelection().toString()}, function (response) {
+                            $('.selectionVal').html(response)
+                        })
+                    }
+                });
+
+
+                $('.op-tfidf').on('click', function (e) {
+
+                    if (!$(this).hasClass("btn-on")) {
+                        $.each($('.term'), function (i, e) {
+                            var percent = $(e).data('tfidf') / maxTfIdf;
+                            $(e).css({'background-color': 'rgba(127,191,63,' + percent + ')'});
+                        });
+                        $(this).addClass("btn-on");
+                    } else {
+                        $.each($('.term'), function (i, e) {
+                            var percent = $(e).data('tfidf') / maxTfIdf;
+                            $(e).css({'background-color': ''});
+                        });
+                        $(this).removeClass("btn-on");
+                    }
+                })
+
+
+                $('.op-nps').on('click', function (e) {
+                    if (!$(this).hasClass("btn-on")) {
+                        $.each($('.group[data-group="noun"]'), function (i, e) {
+                            $(e).addClass("pCorref");
+                        });
+                        $(this).addClass("btn-on");
+                    } else {
+                        $.each($('.group[data-group="noun"]'), function (i, e) {
+                            $(e).removeClass("pCorref");
+                        });
+                        $(this).removeClass("btn-on");
+                    }
+                })
+
+
+                $('.op-verbs').on('click', function (e) {
+                    if (!$(this).hasClass("btn-on")) {
+                        $.each($('.group[data-group="verb"]'), function (i, e) {
+                            $(e).addClass("pCorref");
+                        });
+                        $(this).addClass("btn-on");
+                    } else {
+                        $.each($('.group[data-group="verb"]'), function (i, e) {
+                            $(e).removeClass("pCorref");
+                        });
+                        $(this).removeClass("btn-on");
+                    }
+                })
+
+                
+
+
+            })</script> </head><body>
+        <div class=context style=display:none><div>
+                <div class=selectionVal ></div></div>
+            <div class=explainResponse></div>
+            <div ><input type=button class=explainBtn value=explain>
+            </div></div>
+        <div class='Wrapper' style='line-height:40px;width:860px;margin:0 auto;padding:25px 30px;text-align:justify'><div class='operations'><a class='opButton op-tfidf'>tf-idf</a><a class='opButton op-nps'>Іменовані сутності</a><a class='opButton op-verbs'>Дієслова</a></div><style>.pCorref { padding:3px; border:1px dashed black;position:relative; }
+                .groupPopup {
+                    position:absolute;
+                    background-color: gray;
+                    padding:10px;
+                    color:white;
+
+                    top:0;
+                    right:0;
+
+                    width:600px;
+
+                }
+
+                .opButton {
+
+                    border: 1px solid #dfdfdf;
+                    border-radius:4px;
+                    padding:8px 15px;
+                    margin-right:10px;
+
+                    cursor:pointer;
+                    font-family:Verdana;
+                    font-size:14px;
+                    font-weight:bold;
+
+                }
+
+                .opButton.btn-on {
+
+                    background-color:#68ed73;
+
+                }
+
+
+                .subGpron {
+                    background-color: #ffb789;
+                }
+
+                .subGnoun {
+                    background-color: #abffc3;
+                }
+
+
+                .subGverb{
+                    background-color: #6252ff;
+                }
+                .context {
+                    position:absolute;
+                    padding:2px 20px;
+                    border:1px solid #c7c7c7;
+                    background-color:#c7c7c7;
+                    z-index:10;
+                }
+
+                .context textarea {
+
+                    width:600px;
+                    height:300px;
+                }
+
+{{outputHeader}}</style>{{outputBuffer}}</div></body></html>
+    </body></html>

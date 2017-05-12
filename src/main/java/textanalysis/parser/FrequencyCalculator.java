@@ -40,7 +40,7 @@ public class FrequencyCalculator {
         this.jlt = lt;
     }
 
-    public FrequencyCalculator(String path) {
+    public FrequencyCalculator(String path) throws IOException {
         this.loadFromJson(path);
     }
 
@@ -115,9 +115,7 @@ public class FrequencyCalculator {
 
     }
 
-    protected void loadFromJson(String path) {
-
-        try {
+    protected void loadFromJson(String path) throws IOException {
 
             JsonFactory factory = new JsonFactory();
 
@@ -128,11 +126,10 @@ public class FrequencyCalculator {
             while (fieldsIterator.hasNext()) {
 
                 Map.Entry<String, JsonNode> field = fieldsIterator.next();
+                // what's the magic numebr is 4499?
                 this.inverseDocumentFrequency.put(field.getKey(), Math.log(4499 / field.getValue().get("d").asDouble()));
             }
-        } catch (IOException ex) {
-            Logger.getLogger(FrequencyCalculator.class.getName()).log(Level.SEVERE, null, ex);
-        }
+        
 
     }
 

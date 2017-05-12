@@ -10,14 +10,14 @@ import textanalysis.ng.Rule.SimpleGrammarRule;
 public class ParserGrammar extends ComplexGrammarRule {
 
     private String name = "";
-    private List<GrammarRuleI> rules;
+    private ArrayList<GrammarRuleI> rules = new ArrayList();
     private ParserStack stack = new ParserStack();
     private int currentIndex = 0;
 
     public ParserGrammar(String name, GrammarRuleI... rules) {
 
         this.name = name;
-        this.rules = Arrays.asList(rules);
+        this.rules.addAll(Arrays.asList(rules));
 
         //  + empty terminal rule 
         this.rules.add(new SimpleGrammarRule(true));

@@ -9,6 +9,10 @@ import textanalysis.ng.Rule.SimpleGrammarRule;
 
 public class ParserGrammar extends ComplexGrammarRule {
 
+    public String getName() {
+        return name;
+    }
+
     private String name = "";
     private ArrayList<GrammarRuleI> rules = new ArrayList();
     private ParserStack stack = new ParserStack();
@@ -139,7 +143,7 @@ public class ParserGrammar extends ComplexGrammarRule {
 
     @Override
     public ArrayList<ParserMatch> reduce(boolean endOfStream) {
-        ArrayList<ParserMatch> result;
+        ArrayList<ParserMatch> result = new ArrayList();
 
         GrammarRuleI currentRule = this.rules.get(this.currentIndex);
         GrammarRuleI terminalRule = this.rules.get(this.rules.size() - 1);
@@ -180,6 +184,6 @@ public class ParserGrammar extends ComplexGrammarRule {
             }
         }
 
-        throw new RuntimeException("This should not be happen");
+        return result;
     }
 }

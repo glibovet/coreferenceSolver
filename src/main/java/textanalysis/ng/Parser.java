@@ -10,18 +10,18 @@ public class Parser {
     private ArrayList<ParserPipeline> pipelines = new ArrayList();
     private ParserTokenizer tokenizer;
 
-    public Parser(ParserGrammar ...  grammars) {
+    public Parser(ParserGrammar... grammars) {
         this.grammars = Arrays.asList(grammars);
         this.tokenizer = new ParserTokenizer();
     }
 
-    public ArrayList<ParserMatch> extract(String text) {
+    public ArrayList<GrammarMatch> extract(String text) {
         return this.extract(text, true);
     }
 
-    public ArrayList<ParserMatch> extract(String text, boolean flattenResult) {
+    public ArrayList<GrammarMatch> extract(String text, boolean flattenResult) {
 
-        ArrayList<ParserMatch> match;
+        ArrayList<GrammarMatch> bigResult = new ArrayList();
 
         ArrayList<ParserToken> stream = this.tokenizer.transform(text);
 
@@ -29,14 +29,13 @@ public class Parser {
 //        for (ParserPipeline pipeline : this.pipelines) {
 ////            pipeline
 //        }
-
         for (ParserToken token : stream) {
             for (ParserGrammar grammar : this.grammars) {
                 boolean recheck = grammar.shift(token);
-                match = grammar.reduce();
+                ArrayList<ParserMatch> match = grammar.reduce();
 
                 if (match.size() > 0) {
-                    return match;
+                    bigResult.add(new GrammarMatch(grammar, match));
 
                 }
 
@@ -45,8 +44,7 @@ public class Parser {
                     match = grammar.reduce();
 
                     if (match.size() > 0) {
-                        return match;
-
+                        bigResult.add(new GrammarMatch(grammar, match));
                     }
 
                 }
@@ -55,15 +53,16 @@ public class Parser {
         }
 
         for (ParserGrammar grammar : this.grammars) {
-            match = grammar.reduce(true);
+            ArrayList<ParserMatch> match = grammar.reduce(true);
             if (match.size() > 0) {
-                return match;
+                bigResult.add(new GrammarMatch(grammar, match));
 
             }
             grammar.reset();
         }
 
-        throw new RuntimeException("This should not be happen!");
+        return bigResult;
+//        throw new RuntimeException("This should not be happen!");
 
     }
 

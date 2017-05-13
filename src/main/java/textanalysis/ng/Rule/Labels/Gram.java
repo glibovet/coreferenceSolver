@@ -16,7 +16,7 @@ public class Gram extends RuleLabel {
 
     // TODO fix
     @Override
-    public boolean check(ParserToken token, ArrayList<ParserMatch> localStack) {
+    public boolean check(ParserToken token, ArrayList<ParserMatch> localStack) {        
         for (TokenForm tf : token.forms) {
             if (tf.grammemes.contains(this.value)) {
                 return true;

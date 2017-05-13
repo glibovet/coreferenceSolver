@@ -3,6 +3,7 @@ package textanalysis.ng.Rule;
 import textanalysis.ng.Rule.Labels.Any;
 import textanalysis.ng.Rule.Labels.Capitalized;
 import textanalysis.ng.Rule.Labels.Eq;
+import textanalysis.ng.Rule.Labels.GenderNumberCaseMatch;
 import textanalysis.ng.Rule.Labels.Gram;
 import textanalysis.ng.Rule.Labels.Not;
 import textanalysis.ng.RuleLabel;
@@ -14,6 +15,11 @@ public class Label {
         return new Gram(name);
         
     }
+    
+    public static RuleLabel gnc_match(int stackelementPos) {
+        return new GenderNumberCaseMatch(stackelementPos);
+    }
+    
     
     public static RuleLabel eq(String val) {
         return new Eq(val);

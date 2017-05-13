@@ -15,6 +15,7 @@ import textanalysis.ng.ParserTokenizer;
 
 import static textanalysis.ng.GrammarRule.*;
 import static textanalysis.ng.Rule.Label.*;
+import textanalysis.ng.grammars.person.PersonFull;
 import textanalysis.ng.token.TokenForm;
 
 /**
@@ -66,7 +67,7 @@ public class NGParserTest {
 //                this.tags = tags;
 //            }
 //        }
-        String text = this.getDefaultText();
+        String text = "Доценко Сергій Леонідовичу - бідний сирота."; // this.getDefaultText();
 
         ParserGrammar sentenceGrammar = new ParserGrammar("Sentence",
                 simple(capitalized()), // or not 
@@ -74,26 +75,24 @@ public class NGParserTest {
                 simple(gram("PUNCTUATION"), any(eq("."), eq("?"), eq("!")))
         );
         
-        
-        
-        Parser sentenceParser = new Parser(sentenceGrammar);
+        Parser sentenceParser = new Parser(new PersonFull());
 
         ArrayList<String> sentences = new ArrayList();
 
         for (GrammarMatch match : sentenceParser.extract(text)) {
 //            sentences.add(match.toString());
+    
+            System.out.println(match.matchedRule.getName() +"["+match+"]");
 
-            System.out.println(match);
-
-            for (ParserMatch pm : match.tokensMatched) {
-                if (pm.token.forms.size() > 1) {
-
+//            for (ParserMatch pm : match.tokensMatched) {
+////                if (pm.token.forms.size() > 1) {
 //                    System.out.println(pm.token.value);
-                    for (TokenForm tf : pm.token.forms) {
+//                
+//                    for (TokenForm tf : pm.token.forms) {
 //                        System.out.println(tf.grammemes);
-                    }
-                }
-            }
+//                    }
+////                }
+//            }
 
 //          
         }

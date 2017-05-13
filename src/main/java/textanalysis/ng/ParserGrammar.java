@@ -13,10 +13,14 @@ public class ParserGrammar extends ComplexGrammarRule {
         return name;
     }
 
-    private String name = "";
-    private ArrayList<GrammarRuleI> rules = new ArrayList();
+    protected String name = "";
+    protected ArrayList<GrammarRuleI> rules = new ArrayList();
+    
     private ParserStack stack = new ParserStack();
     private int currentIndex = 0;
+
+    public ParserGrammar() {
+    }
 
     public ParserGrammar(String name, GrammarRuleI... rules) {
 

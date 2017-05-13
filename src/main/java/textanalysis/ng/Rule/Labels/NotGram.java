@@ -6,11 +6,11 @@ import textanalysis.ng.ParserToken;
 import textanalysis.ng.RuleLabel;
 import textanalysis.ng.token.TokenForm;
 
-public class Gram extends RuleLabel {
+public class NotGram extends RuleLabel {
 
     String value;
 
-    public Gram(String name) {
+    public NotGram(String name) {
         this.value = name;
     }
 
@@ -19,10 +19,10 @@ public class Gram extends RuleLabel {
     public boolean check(ParserToken token, ArrayList<ParserMatch> localStack) {
         for (TokenForm tf : token.forms) {
             if (tf.grammemes.contains(this.value)) {
-                return true;
+                return false;
             }
         }
-        return false;
+        return true;
     }
 
 }

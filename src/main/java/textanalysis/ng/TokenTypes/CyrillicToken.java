@@ -14,6 +14,7 @@ public class CyrillicToken extends TokenType {
     }
 
     @Override
+    // TODO add here one more param - forms
     public ParserToken transform(String value, int start, int end) {
         ParserToken pt = new ParserToken();
 

@@ -18,9 +18,9 @@ public class QuoteToken extends TokenType {
         if (value.equals("«") || value.equals("„")) {
             form.addGrammeme("L-QUOTE");
         } else if (value.equals("\"") || value.equals("'")) {
-            form.addGrammeme("R-QUOTE");
-        } else {
             form.addGrammeme("G-QUOTE");
+        } else {
+            form.addGrammeme("R-QUOTE");
         }
 
         forms.add(form);
@@ -28,7 +28,7 @@ public class QuoteToken extends TokenType {
         return new ParserToken(value, new TokenPosition(start, end), forms);
 
     }
-
+    // TODO fix the regex. now it matches `пов'язаний`
     public QuoteToken() {
         super("quote", "[\\\"\\'\\«\\»\\„\\“]");
     }

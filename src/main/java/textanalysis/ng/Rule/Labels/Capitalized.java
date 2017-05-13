@@ -5,17 +5,11 @@ import textanalysis.ng.ParserMatch;
 import textanalysis.ng.ParserToken;
 import textanalysis.ng.RuleLabel;
 
-public class Neq extends RuleLabel {
-    
-    String val;
+public class Capitalized extends RuleLabel {
 
-    public Neq(String val) {
-        this.val = val;
-    }
-    
     @Override
     public boolean check(ParserToken token, ArrayList<ParserMatch> localStack) {
-        return !token.value.equals(this.val);
+        return Character.isUpperCase(token.value.charAt(0));
     }
 
 }

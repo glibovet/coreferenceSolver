@@ -40,7 +40,7 @@ public class ParserTokenizer {
 
         String complete_token_regex = String.join("|", patterns);
 
-        this.tokenRegex = Pattern.compile(complete_token_regex, Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);
+        this.tokenRegex = Pattern.compile(complete_token_regex, Pattern.UNICODE_CASE | Pattern.CASE_INSENSITIVE);        
     }
 
     public final ParserTokenizer handle(TokenType t) {

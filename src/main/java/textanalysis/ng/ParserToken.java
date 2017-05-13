@@ -1,6 +1,9 @@
 package textanalysis.ng;
 
 import java.util.ArrayList;
+import java.util.List;
+import org.languagetool.AnalyzedToken;
+import org.languagetool.AnalyzedTokenReadings;
 import textanalysis.ng.token.TokenForm;
 import textanalysis.ng.token.TokenPosition;
 
@@ -34,6 +37,34 @@ public class ParserToken {
         this.forms = forms;
 //        this.normalization_type = normalization_type;
 //        this.interpretation = interpretation;
+    }
+
+    void setRawForms(AnalyzedTokenReadings forms) {
+
+        int index = 0;
+        for (AnalyzedToken tokenForm : forms.getReadings()) {
+
+            String[] grammemes = new String[]{};
+            String tags = tokenForm.getPOSTag();
+            if (tags != null) {
+                grammemes = tags.split(":");
+            }
+
+            if (index == 0 && this.forms.size() > 0) {
+                this.forms.get(0).normalForm = tokenForm.getLemma();
+
+                // TODO optimize to use cons var
+                for (String gr : grammemes) {
+                    this.forms.get(0).grammemes.add(gr);
+                }
+
+            } else {
+                this.forms.add(new TokenForm(tokenForm.getLemma(), grammemes));
+            }
+
+            index++;
+
+        }
     }
 
 }

@@ -37,7 +37,7 @@ public class MainController extends HttpController {
             JLanguageTool langTool = (JLanguageTool) this.services.get("langTool");
 
             List<AnalyzedSentence> sentences = langTool.analyzeText(params.get("text"));
-
+            
             StringBuilder outputBuffer = new StringBuilder();
 
             ArrayList<String> tokensOutput = new ArrayList<>();

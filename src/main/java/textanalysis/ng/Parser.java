@@ -1,5 +1,6 @@
 package textanalysis.ng;
 
+import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,13 +13,18 @@ import textanalysis.ng.Rule.GrammarRuleI;
 
 public class Parser {
 
-    private List<GrammarRuleI> grammars = new ArrayList();
-    private ArrayList<ParserPipeline> pipelines = new ArrayList();
+    private final List<GrammarRuleI> grammars = new ArrayList();
+    private final ArrayList<ParserTokenPreprocessor> preprocessors = new ArrayList();
     private ParserTokenizer tokenizer;
 
-    public Parser(GrammarRuleI ... grammars) {
-        this.grammars = Arrays.asList(grammars);
+    public Parser(GrammarRuleI... grammars) {
+        this.grammars.addAll(Arrays.asList(grammars));
         this.tokenizer = new ParserTokenizer();
+    }
+
+    public Parser(GrammarRuleI[] rules, ParserTokenPreprocessor[] pipelines) {
+        this.grammars.addAll(Arrays.asList(rules));
+        this.preprocessors.addAll(Arrays.asList(pipelines));
     }
 
     public ArrayList<GrammarMatch> extract(String text) {
@@ -38,7 +44,7 @@ public class Parser {
         // provide tagger as a parameter to parser
         // add posibility to skip tagging to boost performance
         List<AnalyzedTokenReadings> tags = null;
-        
+
         try {
             UkrainianTagger ut = new UkrainianTagger();
             List<String> sentence = new ArrayList();
@@ -52,28 +58,28 @@ public class Parser {
             Logger.getLogger(GrammarMatch.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        // not yet implemented
-//        for (ParserPipeline pipeline : this.pipelines) {
-////            pipeline
-//        }
+//                 not yet implemented
+        for (ParserTokenPreprocessor preprocessor : this.preprocessors) {
+            preprocessor.proceed(stream);
+        }
 
         int currentIndex = 0;
         for (ParserToken token : stream) {
-            
+
             AnalyzedTokenReadings forms = tags.get(currentIndex);
-            
+
             if (forms != null) {
-                token.setRawForms(forms);                
+                token.setRawForms(forms);
 //                if (token.value.equals("він")) {
 //                    System.out.println(forms);
 //                }
             }
             currentIndex++;
-            
+
             for (GrammarRuleI grule : this.grammars) {
-                
-                ParserGrammar grammar = (ParserGrammar)grule;
-                
+
+                ParserGrammar grammar = (ParserGrammar) grule;
+
                 boolean recheck = grammar.shift(token);
                 ArrayList<ParserMatch> match = grammar.reduce();
 
@@ -96,9 +102,9 @@ public class Parser {
         }
 
         for (GrammarRuleI grule : this.grammars) {
-            
-            ParserGrammar grammar = (ParserGrammar)grule;
-            
+
+            ParserGrammar grammar = (ParserGrammar) grule;
+
             ArrayList<ParserMatch> match = grammar.reduce(true);
             if (match.size() > 0) {
                 bigResult.add(new GrammarMatch(grammar, match));

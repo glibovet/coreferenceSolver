@@ -39,7 +39,11 @@ public class ParserToken {
 //        this.interpretation = interpretation;
     }
 
-    void setRawForms(AnalyzedTokenReadings forms) {
+    public void addGrammFeature(String name) {
+        this.forms.get(0).grammemes.add(name);
+    }
+
+    public void setRawForms(AnalyzedTokenReadings forms) {
 
         int index = 0;
         for (AnalyzedToken tokenForm : forms.getReadings()) {

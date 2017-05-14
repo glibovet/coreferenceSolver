@@ -6,23 +6,24 @@ import textanalysis.ng.ParserToken;
 import textanalysis.ng.RuleLabel;
 import textanalysis.ng.token.TokenForm;
 
-public class NotGram extends RuleLabel {
+public class Dictionary extends RuleLabel {
 
-    String value;
+    String[] dict;
 
-    public NotGram(String name) {
-        this.value = name;
+    public Dictionary(String[] dict) {
+        this.dict = dict;
     }
 
-    // TODO fix
     @Override
     public boolean check(ParserToken token, ArrayList<ParserMatch> localStack) {
         for (TokenForm tf : token.forms) {
-            if (tf.grammemes.contains(this.value)) {
-                return false;
+            for (String w : this.dict) {
+                if (w.equals(tf.normalForm)) {
+                    return true;
+                }
             }
         }
-        return true;
+        return false;
     }
 
 }

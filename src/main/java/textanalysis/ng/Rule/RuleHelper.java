@@ -9,10 +9,6 @@ import textanalysis.ng.token.TokenForm;
 
 public class RuleHelper {
 
-    public static boolean matchLabelWithDisambiguationResolving(int index, ParserToken token, List<ParserToken> stack, ArrayList<GramFeatureMatcher> match_labels) {
-        return matchLabelWithDisambiguationResolving(index, token, stack, match_labels, false, true);
-    }
-
     public static boolean matchLabelWithDisambiguationResolving(int index, ParserToken token, List<ParserToken> stack, GramFeatureMatcher... matchers) {
         List<GramFeatureMatcher> match_labels = Arrays.asList(matchers);
 
@@ -21,7 +17,10 @@ public class RuleHelper {
 
     public static boolean matchLabelWithDisambiguationResolving(int index, ParserToken token, List<ParserToken> stack, List<GramFeatureMatcher> match_labels, boolean solve_disambiguation, boolean match_all_disambiguation_forms) {
         
-        index = stack.size() + index;
+        
+        if (index < 0) {
+            index = stack.size()+ index;
+        }
         
         ArrayList<TokenForm> case_forms = new ArrayList();
         ArrayList<TokenForm> candidate_forms = new ArrayList();
@@ -32,7 +31,7 @@ public class RuleHelper {
                     break;
                 }
             }
-
+            
             for (TokenForm case_form : stack.get(index).forms) {
                 boolean match = false;
 

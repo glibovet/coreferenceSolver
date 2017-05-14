@@ -26,6 +26,17 @@ public class SimpleGrammarRule implements GrammarRuleI {
         this.labels = Arrays.asList(labels);
     }
 
+    public SimpleGrammarRule(SimpleGrammarRule copy) {
+        
+        this.active = copy.active;
+        this.terminal = copy.terminal;
+        this.optional = copy.optional;
+        this.repeatable = copy.repeatable;
+        this.skip = copy.skip;
+        
+        this.labels = copy.labels;
+    }
+
     @Override
     public boolean isSimple() {
         return true;

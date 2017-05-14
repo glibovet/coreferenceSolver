@@ -8,14 +8,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.languagetool.AnalyzedTokenReadings;
 import org.languagetool.tagging.uk.UkrainianTagger;
+import textanalysis.ng.Rule.GrammarRuleI;
 
 public class Parser {
 
-    private List<ParserGrammar> grammars = new ArrayList();
+    private List<GrammarRuleI> grammars = new ArrayList();
     private ArrayList<ParserPipeline> pipelines = new ArrayList();
     private ParserTokenizer tokenizer;
 
-    public Parser(ParserGrammar... grammars) {
+    public Parser(GrammarRuleI ... grammars) {
         this.grammars = Arrays.asList(grammars);
         this.tokenizer = new ParserTokenizer();
     }
@@ -62,11 +63,17 @@ public class Parser {
             AnalyzedTokenReadings forms = tags.get(currentIndex);
             
             if (forms != null) {
-                token.setRawForms(forms);
+                token.setRawForms(forms);                
+//                if (token.value.equals("він")) {
+//                    System.out.println(forms);
+//                }
             }
             currentIndex++;
             
-            for (ParserGrammar grammar : this.grammars) {
+            for (GrammarRuleI grule : this.grammars) {
+                
+                ParserGrammar grammar = (ParserGrammar)grule;
+                
                 boolean recheck = grammar.shift(token);
                 ArrayList<ParserMatch> match = grammar.reduce();
 
@@ -88,7 +95,10 @@ public class Parser {
             }
         }
 
-        for (ParserGrammar grammar : this.grammars) {
+        for (GrammarRuleI grule : this.grammars) {
+            
+            ParserGrammar grammar = (ParserGrammar)grule;
+            
             ArrayList<ParserMatch> match = grammar.reduce(true);
             if (match.size() > 0) {
                 bigResult.add(new GrammarMatch(grammar, match));

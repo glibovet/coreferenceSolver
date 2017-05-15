@@ -1,4 +1,4 @@
-package textanalysis.ng.Rule;
+package textanalysis.ng.helpers;
 
 import textanalysis.ng.Rule.Labels.All;
 import textanalysis.ng.Rule.Labels.Any;

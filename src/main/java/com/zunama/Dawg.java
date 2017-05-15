@@ -95,7 +95,7 @@ public class Dawg {
 
     private void insertWord(String word) {
         if (word.compareTo(previousWord) < 0)
-            throw new RuntimeException("Trying to insert a word out of order.");
+            throw new RuntimeException("Trying to insert a word `"+this.previousWord+"|"+word+"` out of order.");
 
         word = word.toLowerCase();
 

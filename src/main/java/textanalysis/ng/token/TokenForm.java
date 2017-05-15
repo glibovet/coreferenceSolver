@@ -29,5 +29,11 @@ public class TokenForm {
         this.grammemes.add(val);
         return this;
     }
+    
+    @Override
+    public String toString() {
+        return "["+this.normalForm+":("+this.grammemes.toString()+")]";
+    }
+    
 
 }

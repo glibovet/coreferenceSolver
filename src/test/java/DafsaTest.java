@@ -39,11 +39,6 @@ public class DafsaTest {
             "gong"
         };
         
-        
-//        Path path = Paths.get("/path/to/wordlist.txt");
-//        List<String> words = Files.readAllLines(path, StandardCharsets.UTF_8);
-        
-        
         Dawg dawg = new Dawg(Arrays.asList(words));
         
         for (String w: words) {

@@ -1,8 +1,8 @@
 package textanalysis.ng.grammars;
 
-import static textanalysis.ng.GrammarRule.*;
+import static textanalysis.ng.helpers.GrammarRule.*;
 import textanalysis.ng.Rule.GrammarRuleI;
-import static textanalysis.ng.Rule.Label.*;
+import static textanalysis.ng.helpers.Label.*;
 import textanalysis.ng.Rule.SimpleGrammarRule;
 
 // this class should be named 
@@ -28,6 +28,13 @@ public class Person {
                 not(gram("LATIN")),
                 capitalized(),
                 not(upper())
+        );
+
+        SimpleGrammarRule possibleLastnameSecond = new SimpleGrammarRule(
+                not(gram("LATIN")),
+                capitalized(),
+                not(upper()),
+                gnc_match(-1)
         );
 
         return new GrammarRuleI[]{
@@ -127,19 +134,30 @@ public class Person {
             simple(any(gram("fname"), gram("abbr"))),
             simple(gram("PUNCTUATION"), eq("."))
             ),
-            complex("PPerson_FLnamesunknown",
+            complex("PPerson_Full",
             skip(not(all(gram("PUNCTUATION"), eq(".")), gram("END-OF-LINE"))),
             possibleLastname,
-            possibleLastname
+            possibleLastnameSecond,
+            simple(gram("patr"), not(gram("abbr")), capitalized(), not(gram("p")), gnc_match(-1))
+            ),
+            complex("PPerson_FirstLastUnknown",
+            skip(not(all(gram("PUNCTUATION"), eq(".")), gram("END-OF-LINE"))),
+            possibleLastname,
+            possibleLastnameSecond
             ),
             complex("Person_Unnamed",
             repeatable(gram("adj")),
             simple(gram("noun"), gram("anim"), not(gram("p")), gnc_match(-1))
             ),
+            //
             complex("Person_UnnamedPronoun",
             skip(not(all(gram("PUNCTUATION"), eq(",")))),
             simple(gram("&pron"), gram("noun")),
-            skip(any(gram("verb"),gram("noun")))
+            skip(any(gram("verb"), gram("noun")))
+            ),
+            //
+            complex("Person_UnnamedPosition",
+            simple(gram("Person/Position"), not(gram("p")))
             )
         };
     }

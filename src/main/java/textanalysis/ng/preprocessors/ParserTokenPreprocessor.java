@@ -2,7 +2,6 @@ package textanalysis.ng.preprocessors;
 
 import com.zunama.Dawg;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import textanalysis.ng.ArrayPermutator;
 import textanalysis.ng.ParserToken;
@@ -13,27 +12,31 @@ abstract public class ParserTokenPreprocessor {
 
     protected List<ParserToken> stack = new ArrayList();
     protected Dawg dictionary;
-    protected String grammemeName;
+    protected String grammarTag;
 
-    public String getGrammemeName() {
-        return grammemeName;
+    public String getGrammarTag() {
+        return grammarTag;
     }
 
-    public void setGrammemeName(String grammemeName) {
-        this.grammemeName = grammemeName;
+    public void setGrammarTag(String grammarTag) {
+        this.grammarTag = grammarTag;
     }
 
     // this method should be definitelly rewrited
     protected ShiftResult shift(ParserToken token) {
 
         List<ParserToken> possible_stack = new ArrayList();
-        Collections.copy(possible_stack, this.stack);
+
+        for (ParserToken pt : this.stack) {
+            possible_stack.add(pt);
+        }
+
         possible_stack.add(token);
 
         boolean match = this.matchesPrefix(possible_stack);
         if (match) {
             this.stack.add(token);
-            return new ShiftResult(ShiftResult.State.CommonPrefix, null);
+            return new ShiftResult(ShiftResult.State.CommonPrefix, token);
         } else {
             this.stack = new ArrayList();
             String matchedWord = this.matchesCompleteWord(possible_stack);
@@ -48,8 +51,9 @@ abstract public class ParserTokenPreprocessor {
     protected boolean matchesPrefix(List<ParserToken> stack) {
 
         List<String> wordForms = this.mergeStack(stack);
+
         for (String form : wordForms) {
-            if (this.dictionary.prefixExist(form)) {
+            if (!this.dictionary.search(form) && this.dictionary.prefixExist(form)) {
                 return true;
             }
         }
@@ -80,8 +84,11 @@ abstract public class ParserTokenPreprocessor {
     }
 
     protected String matchesCompleteWord(List<ParserToken> stack) {
+
         List<String> wordForms = this.mergeStack(stack);
+
         for (String form : wordForms) {
+
             if (this.dictionary.search(form)) {
                 return form;
             }
@@ -89,7 +96,7 @@ abstract public class ParserTokenPreprocessor {
         return "";
     }
 
-    public abstract void proceed(ArrayList<ParserToken> tokens);
+    public abstract List<ParserToken> proceed(List<ParserToken> tokens);
 
     public String getOriginalForm(List<ParserToken> stack) {
 
@@ -117,12 +124,14 @@ abstract public class ParserTokenPreprocessor {
 
         TokenForm f = forms.get(0);
         f.normalForm = matchedWord;
-        f.grammemes.add(this.getGrammemeName());
+        f.grammemes.add(this.getGrammarTag());
 
-        return new ParserToken(
+        ParserToken pt  =new ParserToken(
                 getOriginalForm(stack),
                 getPosition(stack),
                 forms
         );
+        
+        return pt;
     }
 }

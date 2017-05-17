@@ -56,7 +56,7 @@ public class ParserGrammar extends ComplexGrammarRule {
 
         ParserToken copied = new ParserToken(token);
 
-        if (!rule.isSimple()) {
+        if (!rule.isSimple()) {            
             ComplexGrammarRule cRule = (ComplexGrammarRule) rule;
             recheck = cRule.shift(token);
             if (!cRule.active()) {
@@ -120,7 +120,7 @@ public class ParserGrammar extends ComplexGrammarRule {
      * @param labels
      * @return
      */
-    public boolean match(ParserToken token, List<RuleLabel> labels) {
+    public boolean match(final ParserToken token, List<RuleLabel> labels) {
         ArrayList<ParserMatch> localStack = this.stack.flatten();
         for (RuleLabel label : labels) {
             if (!label.check(token, localStack)) {

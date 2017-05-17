@@ -1,5 +1,6 @@
 package textanalysis.ng.helpers;
 
+import com.trg.helpers.StringHelper;
 import textanalysis.ng.ParserGrammar;
 import textanalysis.ng.Rule.ComplexGrammarRule;
 import textanalysis.ng.Rule.GrammarRuleI;
@@ -35,6 +36,21 @@ public class GrammarRule {
 
         return result;
     }
+    
+    /**
+     * Anonymous complex rule. for use in nested complex rules
+     * @param rules
+     * @return 
+     */
+     public static ComplexGrammarRule complex(GrammarRuleI... rules) {
+         
+         String anonymousName = StringHelper.random(4);
+         
+        ParserGrammar result = new ParserGrammar(anonymousName, rules);
+
+        return result;
+    }
+    
 
     public static SimpleGrammarRule optional(RuleLabel... labels) {
         SimpleGrammarRule result = new SimpleGrammarRule(labels);

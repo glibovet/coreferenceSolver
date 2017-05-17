@@ -17,9 +17,12 @@ import textanalysis.TokenPipeline;
 import textanalysis.ng.GrammarMatch;
 import textanalysis.ng.Parser;
 import textanalysis.ng.ParserToken;
+import textanalysis.ng.Rule.GrammarRuleI;
+import textanalysis.ng.grammars.Brand;
 import textanalysis.ng.grammars.Person;
 import textanalysis.ng.preprocessors.DictionaryPreprocessor;
 import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
+import textanalysis.ng.token.TokenForm;
 import textanalysis.parser.FrequencyCalculator;
 import textanalysis.pipeline.Rule;
 import textanalysis.pipeline.StepHandler;
@@ -46,7 +49,7 @@ public class MainController extends HttpController {
             JLanguageTool langTool = (JLanguageTool) this.services.get("langTool");
 
             List<AnalyzedSentence> sentences = langTool.analyzeText(params.get("text"));
-            
+
             StringBuilder outputBuffer = new StringBuilder();
 
             ArrayList<String> tokensOutput = new ArrayList<>();
@@ -69,18 +72,15 @@ public class MainController extends HttpController {
     }
 
     public void analyzeAction() throws IOException {
-        
 
         // read input data from file
         String inputPath = "./input.txt";
 
-        
         byte[] encoded = Files.readAllBytes(Paths.get(inputPath));
-        String content =  new String(encoded,Charset.forName("UTF8"));
-        
+        String content = new String(encoded, Charset.forName("UTF8"));
+
         this.params.put("text", content);
-        
-        
+
         long startTime = System.currentTimeMillis();
 
         Rule nounGather = new Rule("adj").then("noun").then("prep").then("noun")
@@ -183,82 +183,92 @@ public class MainController extends HttpController {
 
             outputBuffer.append(String.join(" ", tokensOutput));
             outputBuffer.append("<script> var maxTfIdf =" + max.maxTfIdf + ";</script>");
-            
-            this.view.set("maxTfIdf",max.maxTfIdf);
-            
+
+            this.view.set("maxTfIdf", max.maxTfIdf);
+
             this.view.set("outputBuffer", outputBuffer);
-            this.view.set("tokensOutput",tokensOutput);
-            
+            this.view.set("tokensOutput", tokensOutput);
+
             long stopTime = System.currentTimeMillis();
             long elapsedTime = stopTime - startTime;
-            System.out.println("TIME:"+elapsedTime);
+            System.out.println("TIME:" + elapsedTime);
         } catch (Exception e) {
             System.err.println("there is error");
             e.printStackTrace();
         }
 
     }
-    
+
     public void extractAction() throws IOException {
-    
-         Parser entityParser = new Parser(Person.getGrammarRules(), new ParserTokenPreprocessor[]{
-            new DictionaryPreprocessor("Org/Education", "dictionaries/org_education.txt"),
-            new DictionaryPreprocessor("Person/Position", "dictionaries/persons.txt")
-        });
+
+        Parser entityParser = new Parser(
+                new GrammarRuleI[][]{
+                    Person.getGrammarRules(), // make this generic
+                    Brand.getGrammarRules()
+                },
+                new ParserTokenPreprocessor[]{
+                    new DictionaryPreprocessor("Org/Education", "dictionaries/org_education.txt"),
+                    new DictionaryPreprocessor("Person/Position", "dictionaries/persons.txt")
+                });
 
         LinkedList<String> ll = new LinkedList();
 
         String inputPath = "./input.txt";
 
-        
         byte[] encoded = Files.readAllBytes(Paths.get(inputPath));
-        String text =  new String(encoded,Charset.forName("UTF8"));
-        
+        String text = new String(encoded, Charset.forName("UTF8"));
+
         Document json = new Document();
- 
-        
+
         ArrayList<Document> list = new ArrayList();
-        
-        for (GrammarMatch it: entityParser.resolveMatches(entityParser.extract(text))) {
-            
+
+        for (GrammarMatch it : entityParser.resolveMatches(entityParser.extract(text))) {
+
             Document node = new Document();
-            node.put("rule",it.matchedRule.getName());
-            
+            node.put("rule", it.matchedRule.getName());
+
             Document position = new Document();
             position.put("start", it.getTokensPosition().start);
             position.put("end", it.getTokensPosition().end);
             node.put("pos", position);
-            
-            node.put("val",it.toString());
-            
-            
+
+            node.put("val", it.toString());
+
             list.add(node);
-            
+
         }
-        
+
         json.put("items", list);
-        
-        
+
         Document jsonTokens = new Document();
         List<Document> jt = new ArrayList();
-        
-        for (ParserToken pt: entityParser.getAllTokens()) {
-            Document t = new Document("v",pt.value);
+
+        for (ParserToken pt : entityParser.getAllTokens()) {
+            Document t = new Document("v", pt.value);
             t.put("sp", pt.position.start);
-            t.put("ep",pt.position.end);
+            t.put("ep", pt.position.end);
+
+            // forms to json
+            ArrayList<Document> forms = new ArrayList();
+
+            for (TokenForm tf : pt.forms) {
+                Document f = new Document();
+                f.put("nf", tf.normalForm);
+                forms.add(f);
+            }
+
+            t.put("f", forms);
             jt.add(t);
         }
-        
-        jsonTokens.put("tokens",jt);
-            
-        this.view.set("tokens",jsonTokens.toJson());
 
-        this.view.set("text",text);
-        this.view.set("json",json.toJson(new JsonWriterSettings(true)));       
-        
+        jsonTokens.put("tokens", jt);
+
+        this.view.set("tokens", jsonTokens.toJson());
+
+        this.view.set("text", text);
+        this.view.set("json", json.toJson(new JsonWriterSettings(true)));
+
 //        this.response.setContent(json);
-        
     }
-    
 
 }

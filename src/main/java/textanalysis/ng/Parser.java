@@ -25,8 +25,15 @@ public class Parser {
         this.grammars.addAll(Arrays.asList(grammars));
     }
 
-    public Parser(GrammarRuleI[] rules, ParserTokenPreprocessor[] pipelines) {
-        this.grammars.addAll(Arrays.asList(rules));
+    
+    
+    
+    public Parser(GrammarRuleI[][] rules, ParserTokenPreprocessor[] pipelines) {
+        
+        for (GrammarRuleI[] group: rules) {
+            this.grammars.addAll(Arrays.asList(group));
+        }
+     
         this.preprocessors.addAll(Arrays.asList(pipelines));
     }
 
@@ -92,11 +99,10 @@ public class Parser {
         
         this.currentTokens = stream;
 
-//        ArrayList<ParserMatch> notMatchedStack = new ArrayList();
         for (ParserToken token : stream) {
-//            tokenIndex++;
             for (GrammarRuleI grule : this.grammars) {
 
+                // TODO get rid of this. use based on interface implementation
                 ParserGrammar grammar = (ParserGrammar) grule;
 
                 boolean recheck = grammar.shift(token);
@@ -104,21 +110,8 @@ public class Parser {
                 ArrayList<ParserMatch> match = grammar.reduce();
 
                 if (match.size() > 0) {
-
-                    // empty not matched stack and add it to result
-//                    if (notMatchedStack.size() > 0) {
-//                        bigResult.add(new GrammarMatch(null, notMatchedStack));
-//                        notMatchedStack = new ArrayList();
-//                    }
                     bigResult.add(new GrammarMatch(grammar, match));
                 }
-//                else {
-//
-//                    if (lastInsertTokenIndex < tokenIndex) {
-//                        notMatchedStack.add(new ParserMatch(0, token));
-//                        lastInsertTokenIndex++;
-//                    }
-//                }
 
                 if (recheck) {
                     grammar.shift(token);
@@ -153,8 +146,6 @@ public class Parser {
 
         List<GrammarMatch> result = new ArrayList();
 
-//        def resolve_matches(self, matches, strict=True):
-//      sort matches by tokens count in decreasing order
         Collections.sort(matches, (a, b) -> {
             return b.tokensMatched.size() - a.tokensMatched.size();
         });
@@ -194,12 +185,9 @@ public class Parser {
             if (currentSpan == null) {
                 currentSpan = new TokenPosition(tp.pos);
                 gm = tp.match;
-//                System.out.println(" cSpan = " + tp);
             } else {
 
                 if (tp.pos.start >= currentSpan.end) {
-//                    System.out.println(" cSpan => " + i + "|" + tp + " , " + tp.pos.start + " > " + currentSpan.end);
-
                     result.add(gm);
 
                     currentSpan = new TokenPosition(tp.pos);
@@ -229,8 +217,6 @@ public class Parser {
             result.add(gm);
         }
         
-
-//        positions.forEach(System.out::println);
         return result;
 //        tree = IntervalTree()
 //        for (grammar, match) in matches:

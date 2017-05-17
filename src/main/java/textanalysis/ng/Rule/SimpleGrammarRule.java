@@ -21,7 +21,7 @@ public class SimpleGrammarRule implements GrammarRuleI {
     public SimpleGrammarRule(boolean terminal) {
         this.terminal = terminal;
     }
-
+     
     public SimpleGrammarRule(RuleLabel... labels) {
         this.labels = Arrays.asList(labels);
     }

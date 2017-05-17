@@ -1,93 +1,219 @@
-<div class="text" id="text" style="padding:10px;margin:0 auto; width:960px;font-family:arial;text-align:justify;font-size:22px;line-height:30px"></div>
-<script
-    src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-    integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
-crossorigin="anonymous"></script>
-<style>
-    
-    #text > span:hover {
-        cursor:pointer;
-        background-color:#c7c7c7;
-    }
-    
-    .sT { /* selected token */
-        background-color: gray;
-        color:white;
-    }
-    
-</style>
-<script>
-    
-     $('#text').on('click','span',function(){
-        console.log('clicked')
-        $(this).addClass('sT');
-        
-    })
-    
-    function constructTextFromTokens(tokens, tokenVisitor) {
-        var ot = '';
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Тег META, атрибут charset</title>
+    </head>
+    <body> 
+        <div class="content" style="padding:10px;margin:0 auto; width:1200px;font-family:arial;text-align:justify;font-size:22px;line-height:30px"> 
+            <div class="text col-md-9" id="text" ></div>
+            <div class="selectedTags col-md-3"><h3>Selected tokens</h3>
+                <div id="currentStack">
 
-        if (typeof tokenVisitor == 'undefined') {
-            tokenVisitor = function (i, e) {
-                return e.v;
-            }
-        }
 
-        var prevToken = tokens[0];
-        ot += prevToken.v;
+                </div>
+            </div>
+        </div>
+        <script
+            src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+            integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+        crossorigin="anonymous"></script>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet"/>
+        <style>
 
-        // construct the text
-        var i = 0;
-        for (var ind in tokens) {
-            if (i == 0) {
-                i++;
-                continue;
+            #text > span:hover {
+                cursor:pointer;
+                background-color:#c7c7c7;
             }
 
-            var cT = tokens[ind];
+            .sT { /* selected token */
+                background-color: gray;
+                color:white;
+            }
 
-            if ((prevToken.ep + 1) === cT.sp) {
-                ot += " ";
+            .sTag {
+                padding:2px;
+                border: 1px solid #efefef;
+                margin:4px;
+                display:inline-block;
+            }
+
+            .sTag .n {
+                font-size:15px;
+                color:red;
+            }
+
+            #currentStack {
+                text-align:left;
+                font-size:16px;
             }
 
 
-            ot += tokenVisitor(i, cT);
-            prevToken = cT;
-            i++;
-        }
+        </style>
+        <script>
 
+            var wordsStack = {};
 
-        return ot;
-    }
-
-
-    var wholeText = {{tokens}};
-            var matches = {{json}};
-
-    var text = constructTextFromTokens(wholeText.tokens, function (i, token) {
-        return "<span class=t" + i + ">" + token.v + "</span>";
-    })
-
-
-    function highlightMatch(match) {
-        if (match.pos.start === match.pos.end) {
-            $('.t' + match.pos.start).css({'background-color': 'yellow', 'padding': '2px 6px'});
-        } else {
-
-            for (var ri = match.pos.start; ri <= match.pos.end; ri++) {
-                $('.t' + ri).css({'background-color': 'magenta', 'padding': '2px 6px'});
+            function clone(x) {
+                return JSON.parse(JSON.stringify(x));
             }
-        }
-    }
 
-    var container = document.getElementById('text')
+            $('#text').on('click', 'span', function (e) {
+                if (!e.ctrlKey) {
+                    var nStack = clone(wordsStack);
+                    nStack[$(this).data('t')] = $(this).text();
 
-    container.innerHTML = text;
+                    if (!checkStack(nStack)) {
+                        alert("tokens selected for one entity should be siblings of one another")
+                    } else {
 
-    for (var mInd in matches.items) {
-        highlightMatch(matches.items[mInd]);
-    }
+                        $(this).toggleClass('sT');
+
+                        var tI = $(this).data('t');
+                        if (typeof wordsStack[tI] != 'undefined') {
+                            delete wordsStack[tI];
+                        } else {
+                            wordsStack[tI] = $(this).text();
+                        }
+
+                        redrawCurrentStack(function (i, el) {
+                            return "<div class=sTag><span class=n>" + i + "</span> " + el + "</div>";
+                        });
+                    }
+                } else {
+                    alert(JSON.stringify($(this).data('forms')))
+
+                }
+            })
+
+            document.addEventListener('keydown', function (event) {
+                if (event.keyCode == 13) {
+
+                    console.log(wordsStack)
+
+                    var neStack = Object.values(wordsStack).join(' ');
+
+                    prompt("enter type of named entity matched `" + neStack + "` ");
+                    console.log(neStack)
+
+                    wordsStack = [];
+
+                }
+            });
+
+            /*
+             * Checks whether stack contains tokens that are all siblings of each other
+             */
+            function checkStack(stack) {
+
+                var prevIndex = 0;
+                var cycleIndex = 0;
+                for (var ind in stack) {
+                    if (cycleIndex !== 0) {
+                        if (parseInt(ind) - prevIndex > 1) {
+                            return false;
+                        }
+                    }
+                    prevIndex = parseInt(ind);
+
+                    cycleIndex++;
+                }
+                return true;
+            }
+            function redrawCurrentStack(tokenVisitor) {
+                console.log('redrawing current stack')
+
+                var container = document.getElementById('currentStack')
+
+                if (typeof tokenVisitor == 'undefined') {
+                    tokenVisitor = function (i, e) {
+                        return e;
+                    }
+                }
+
+                var out = '';
+                for (var ind in wordsStack) {
+                    out += tokenVisitor(ind, wordsStack[ind]);
+                }
+
+                container.innerHTML = out;
+
+            }
+
+            function getRandomColor() {
+                return '#' + Math.random().toString(16).substring(9);
+            }
+
+            function constructTextFromTokens(tokens, tokenVisitor) {
+                var ot = '';
+
+                if (typeof tokenVisitor == 'undefined') {
+                    tokenVisitor = function (i, e) {
+                        return e.v;
+                    }
+                }
+
+                var prevToken = tokens[0];
+                ot += prevToken.v;
+
+                // construct the text
+                var i = 0;
+                for (var ind in tokens) {
+                    if (i == 0) {
+                        i++;
+                        continue;
+                    }
+
+                    var cT = tokens[ind];
+
+                    if ((prevToken.ep + 1) === cT.sp) {
+                        ot += " ";
+                    }
+
+
+                    ot += tokenVisitor(i, cT);
+                    prevToken = cT;
+                    i++;
+                }
+
+
+                return ot;
+            }
+
+
+            var wholeText = {{tokens}};
+                    var matches = {{json}};
+
+            var text = constructTextFromTokens(wholeText.tokens, function (i, token) {
+                return "<span data-t=" + i + " class='t" + i + "' data-forms='" + JSON.stringify(token.f) + "'>" + token.v + "</span>";
+            })
+
+
+            function highlightMatch(match) {
+                if (match.pos.start === match.pos.end) {
+                    var className = '.t' + match.pos.start;
+                    $(className).css({'background-color': 'yellow', 'padding': '2px 6px'});
+                    $(className).addClass('ne');
+                } else {
+                    var color = getRandomColor();
+                    for (var ri = match.pos.start; ri <= match.pos.end; ri++) {
+                        var className = '.t' + ri;
+                        $(className).css({'background-color': color, 'padding': '2px 6px', 'border': '1px solid gray'});
+                        $(className).addClass('ne');
+                    }
+                }
+            }
+
+            var container = document.getElementById('text')
+
+            container.innerHTML = text;
+
+            for (var mInd in matches.items) {
+                highlightMatch(matches.items[mInd]);
+            }
 
 
 
-</script>
+        </script>
+    </body>
+</html>

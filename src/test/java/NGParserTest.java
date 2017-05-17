@@ -11,6 +11,7 @@ import org.languagetool.tagging.uk.UkrainianTagger;
 import textanalysis.ng.GrammarMatch;
 import textanalysis.ng.Parser;
 import textanalysis.ng.ParserTokenizer;
+import textanalysis.ng.Rule.GrammarRuleI;
 
 import textanalysis.ng.grammars.Person;
 import textanalysis.ng.preprocessors.DictionaryPreprocessor;
@@ -116,7 +117,7 @@ public class NGParserTest {
 
         String text = this.getDefaultText();
 
-        Parser entityParser = new Parser(Person.getGrammarRules(), new ParserTokenPreprocessor[]{
+        Parser entityParser = new Parser(new GrammarRuleI[][] {Person.getGrammarRules()}, new ParserTokenPreprocessor[]{
             new DictionaryPreprocessor("Org/Education", "dictionaries/org_education.txt"),
             new DictionaryPreprocessor("Person/Position", "dictionaries/persons.txt")
         });

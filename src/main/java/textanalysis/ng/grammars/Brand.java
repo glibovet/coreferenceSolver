@@ -10,15 +10,22 @@ public class Brand {
 
         return new GrammarRuleI[]{
             complex("Brand_Latin",
-            simple(gram("LATIN"), capitalized()),
-            optional(gram("INT"))
+                simple(gram("LATIN"), capitalized()),
+                optional(gram("INT"))
             ),
             //
             complex("Brand_WithConjunction",
-            simple(gram("LATIN"), capitalized()),
-            simple(any(eq("&"), eq("/"))),
-            simple(gram("LATIN"), capitalized())
-            )
+                simple(gram("LATIN"), capitalized()),
+                simple(any(eq("&"), eq("/"))),
+                simple(gram("LATIN"), capitalized())
+            ),
+//            complex("Brand_Website",
+//                simple(gram("LATIN")),
+//                complex(
+//                    simple(eq(".")),
+//                    simple(gram("LATIN"))
+//                )
+//            )
         };
 
     }

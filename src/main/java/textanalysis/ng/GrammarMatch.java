@@ -65,6 +65,29 @@ public class GrammarMatch {
         return tag;
     }
 
+    /**
+     * Returns position of current matched grammar based on tokens
+     * @return 
+     */
+    public TokenPosition getTokensPosition() {
+        if (this.tokensMatched.size() == 1) {
+            
+            int tokenIndex = this.tokensMatched.get(0).token.tokenIndex;
+            
+            return new TokenPosition(tokenIndex,tokenIndex);
+        } else {
+
+            ParserToken startToken = this.tokensMatched.get(0).token;
+            ParserToken endToken = this.tokensMatched.get(this.tokensMatched.size() - 1).token;
+
+            return new TokenPosition(startToken.tokenIndex, endToken.tokenIndex);
+        }
+    }
+    
+    /**
+     * Returns position of current matched grammar based on char offsets
+     * @return 
+     */
     public TokenPosition getPosition() {
 
         if (this.tokensMatched.size() == 1) {

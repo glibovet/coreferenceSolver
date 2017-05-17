@@ -1,0 +1,93 @@
+<div class="text" id="text" style="padding:10px;margin:0 auto; width:960px;font-family:arial;text-align:justify;font-size:22px;line-height:30px"></div>
+<script
+    src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+    integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+crossorigin="anonymous"></script>
+<style>
+    
+    #text > span:hover {
+        cursor:pointer;
+        background-color:#c7c7c7;
+    }
+    
+    .sT { /* selected token */
+        background-color: gray;
+        color:white;
+    }
+    
+</style>
+<script>
+    
+     $('#text').on('click','span',function(){
+        console.log('clicked')
+        $(this).addClass('sT');
+        
+    })
+    
+    function constructTextFromTokens(tokens, tokenVisitor) {
+        var ot = '';
+
+        if (typeof tokenVisitor == 'undefined') {
+            tokenVisitor = function (i, e) {
+                return e.v;
+            }
+        }
+
+        var prevToken = tokens[0];
+        ot += prevToken.v;
+
+        // construct the text
+        var i = 0;
+        for (var ind in tokens) {
+            if (i == 0) {
+                i++;
+                continue;
+            }
+
+            var cT = tokens[ind];
+
+            if ((prevToken.ep + 1) === cT.sp) {
+                ot += " ";
+            }
+
+
+            ot += tokenVisitor(i, cT);
+            prevToken = cT;
+            i++;
+        }
+
+
+        return ot;
+    }
+
+
+    var wholeText = {{tokens}};
+            var matches = {{json}};
+
+    var text = constructTextFromTokens(wholeText.tokens, function (i, token) {
+        return "<span class=t" + i + ">" + token.v + "</span>";
+    })
+
+
+    function highlightMatch(match) {
+        if (match.pos.start === match.pos.end) {
+            $('.t' + match.pos.start).css({'background-color': 'yellow', 'padding': '2px 6px'});
+        } else {
+
+            for (var ri = match.pos.start; ri <= match.pos.end; ri++) {
+                $('.t' + ri).css({'background-color': 'magenta', 'padding': '2px 6px'});
+            }
+        }
+    }
+
+    var container = document.getElementById('text')
+
+    container.innerHTML = text;
+
+    for (var mInd in matches.items) {
+        highlightMatch(matches.items[mInd]);
+    }
+
+
+
+</script>

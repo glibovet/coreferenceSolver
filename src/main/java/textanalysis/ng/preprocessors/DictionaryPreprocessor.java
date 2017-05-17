@@ -29,10 +29,15 @@ public class DictionaryPreprocessor extends ParserTokenPreprocessor {
     }
 
     @Override
+    /**
+     * This method could change token numeration: In case if some tokens merge - the numeration would shift 
+     */
     public List<ParserToken> proceed(List<ParserToken> tokens) {
 
         List<ParserToken> result = new ArrayList();
-
+        
+        int tokenIndex = 0;
+        
         for (ParserToken token : tokens) {
             ShiftResult r = this.shift(token);
 
@@ -44,10 +49,17 @@ public class DictionaryPreprocessor extends ParserTokenPreprocessor {
                 
 //                System.out.println("added:"+r.getToken());
                 
-                result.add(r.getToken());
+                ParserToken pt = r.getToken();
+                pt.setTokenIndex(tokenIndex++);
+
+                result.add(pt);
+                
                 continue;
             } else {
                 for (ParserToken pt : r.getStack()) {
+                    
+                    pt.setTokenIndex(tokenIndex++);
+                    
                     result.add(pt);
                 }
             }

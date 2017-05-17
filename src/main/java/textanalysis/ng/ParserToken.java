@@ -8,7 +8,9 @@ import textanalysis.ng.token.TokenForm;
 import textanalysis.ng.token.TokenPosition;
 
 public class ParserToken {
-
+    
+    public int tokenIndex = 0;
+    
     public String value;
     public TokenPosition position;
     public ArrayList<TokenForm> forms = new ArrayList();// TODO fix this to be the proper class instead of string 
@@ -18,12 +20,22 @@ public class ParserToken {
     public ParserToken() {
     }
 
+    public int getTokenIndex() {
+        return tokenIndex;
+    }
+
+    public void setTokenIndex(int tokenIndex) {
+        this.tokenIndex = tokenIndex;
+    }
+    
+    
     /**
      * TODO fix this This is the copying constructor
      *
      * @param c
      */
     public ParserToken(ParserToken c) {
+        this.tokenIndex = c.tokenIndex;
         this.value = c.value;
         this.position = c.position;
         this.forms = c.forms; // deep copy please

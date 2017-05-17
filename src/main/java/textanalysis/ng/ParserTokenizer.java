@@ -40,7 +40,7 @@ public class ParserTokenizer {
     }
 
     private ParserTokenizer() {
-      
+
     }
 
     private ParserTokenizer buildParserRegex() {
@@ -89,20 +89,25 @@ public class ParserTokenizer {
     }
 
     public ArrayList<ParserToken> transform(String text) {
-        
+
         if (this.patternsMap.size() == 0) {
             throw new RuntimeException("Parser tokenizer wasn't properly initialized!");
         }
-        
+
         ArrayList<ParserToken> result = new ArrayList();
 
         Matcher m = this.tokenRegex.matcher(text);
 
+        int tokenIndex = 0;
         while (m.find()) {
-
             String tokenTypeName = this.getGroupName(m.group());
             if (this.patternsMap.containsKey(tokenTypeName)) {
-                result.add(this.patternsMap.get(tokenTypeName).transform(m.group(), m.start(), m.end()));
+                ParserToken pt = this.patternsMap.get(tokenTypeName).transform(m.group(), m.start(), m.end());
+
+                // set index of token 
+                pt.setTokenIndex(tokenIndex++);
+
+                result.add(pt);
             } else {
                 throw new RuntimeException("This shouldn't happen. Not found a tokenType for `" + m.group() + "`");
             }

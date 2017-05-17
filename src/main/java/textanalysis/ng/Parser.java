@@ -19,6 +19,7 @@ public class Parser {
     private final ArrayList<ParserTokenPreprocessor> preprocessors = new ArrayList();
     private ParserTokenizer tokenizer = ParserTokenizer.defaultTokenizer();
     private TokenOutputConvertor tokenOutputConvertor;
+    private List<ParserToken> currentTokens;
 
     public Parser(GrammarRuleI... grammars) {
         this.grammars.addAll(Arrays.asList(grammars));
@@ -34,8 +35,15 @@ public class Parser {
         return this;
     }
 
+    
+    public List<ParserToken> getAllTokens() {
+        return this.currentTokens;
+    }
+    
     public ArrayList<GrammarMatch> extract(String text) {
-
+        
+        text = text.replaceAll("\\s+", " ");
+        
         ArrayList<GrammarMatch> bigResult = new ArrayList();
 
         List<ParserToken> stream = this.tokenizer.transform(text);
@@ -81,7 +89,9 @@ public class Parser {
         // match with grammars
 //        int tokenIndex = 0;
 //        int lastInsertTokenIndex = 0;
-//
+        
+        this.currentTokens = stream;
+
 //        ArrayList<ParserMatch> notMatchedStack = new ArrayList();
         for (ParserToken token : stream) {
 //            tokenIndex++;
@@ -90,6 +100,7 @@ public class Parser {
                 ParserGrammar grammar = (ParserGrammar) grule;
 
                 boolean recheck = grammar.shift(token);
+                // TODO substitute ParserMatch with parserToken
                 ArrayList<ParserMatch> match = grammar.reduce();
 
                 if (match.size() > 0) {
@@ -136,8 +147,6 @@ public class Parser {
         }
 
         return bigResult;
-//        throw new RuntimeException("This should not be happen!");
-
     }
 
     public List<GrammarMatch> resolveMatches(ArrayList<GrammarMatch> matches) {

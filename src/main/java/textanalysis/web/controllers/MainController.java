@@ -6,11 +6,20 @@ import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import org.bson.Document;
+import org.bson.json.JsonWriterSettings;
 import org.languagetool.AnalyzedSentence;
 import org.languagetool.JLanguageTool;
 import textanalysis.Max;
 import textanalysis.TokenPipeline;
+import textanalysis.ng.GrammarMatch;
+import textanalysis.ng.Parser;
+import textanalysis.ng.ParserToken;
+import textanalysis.ng.grammars.Person;
+import textanalysis.ng.preprocessors.DictionaryPreprocessor;
+import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
 import textanalysis.parser.FrequencyCalculator;
 import textanalysis.pipeline.Rule;
 import textanalysis.pipeline.StepHandler;
@@ -189,5 +198,67 @@ public class MainController extends HttpController {
         }
 
     }
+    
+    public void extractAction() throws IOException {
+    
+         Parser entityParser = new Parser(Person.getGrammarRules(), new ParserTokenPreprocessor[]{
+            new DictionaryPreprocessor("Org/Education", "dictionaries/org_education.txt"),
+            new DictionaryPreprocessor("Person/Position", "dictionaries/persons.txt")
+        });
+
+        LinkedList<String> ll = new LinkedList();
+
+        String inputPath = "./input.txt";
+
+        
+        byte[] encoded = Files.readAllBytes(Paths.get(inputPath));
+        String text =  new String(encoded,Charset.forName("UTF8"));
+        
+        Document json = new Document();
+ 
+        
+        ArrayList<Document> list = new ArrayList();
+        
+        for (GrammarMatch it: entityParser.resolveMatches(entityParser.extract(text))) {
+            
+            Document node = new Document();
+            node.put("rule",it.matchedRule.getName());
+            
+            Document position = new Document();
+            position.put("start", it.getTokensPosition().start);
+            position.put("end", it.getTokensPosition().end);
+            node.put("pos", position);
+            
+            node.put("val",it.toString());
+            
+            
+            list.add(node);
+            
+        }
+        
+        json.put("items", list);
+        
+        
+        Document jsonTokens = new Document();
+        List<Document> jt = new ArrayList();
+        
+        for (ParserToken pt: entityParser.getAllTokens()) {
+            Document t = new Document("v",pt.value);
+            t.put("sp", pt.position.start);
+            t.put("ep",pt.position.end);
+            jt.add(t);
+        }
+        
+        jsonTokens.put("tokens",jt);
+            
+        this.view.set("tokens",jsonTokens.toJson());
+
+        this.view.set("text",text);
+        this.view.set("json",json.toJson(new JsonWriterSettings(true)));       
+        
+//        this.response.setContent(json);
+        
+    }
+    
 
 }

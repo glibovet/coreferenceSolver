@@ -16,12 +16,12 @@ import textanalysis.parser.Parser;
 
 public class Main {
 
-    public static void mains(String[] args) throws IOException {
+    public static void main(String[] args) throws IOException {
         Parser zikParser = new Parser();
-        zikParser.parse();
+        zikParser.parseArticles();
     }
 
-    public static void main(String[] args) throws IOException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
+    public static void mains(String[] args) throws IOException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 
         System.setProperty("file.encoding", "UTF-8");
         Field charset = Charset.class.getDeclaredField("defaultCharset");

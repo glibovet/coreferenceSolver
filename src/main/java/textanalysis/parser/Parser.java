@@ -63,7 +63,7 @@ public class Parser {
         ArrayList<ZikEntry> items = new ArrayList<>();
 
         JsonFactory f = new MappingJsonFactory();
-        JsonParser jp = f.createParser(new File("E:\\workspace\\zikentities50_100.json"));
+        JsonParser jp = f.createParser(new File("c:\\workspace\\zikentities200_250.json"));
 
         JsonToken current;
 
@@ -85,11 +85,14 @@ public class Parser {
             map.add(uid + " " + post.Description);
 
             Path file = Paths.get("C:\\course\\" + uid + ".txt");
+            file.toFile().getParentFile().mkdirs();
+            
             Files.write(file, post.Body, Charset.forName("UTF-8"));
 
         }
 
         Path file = Paths.get("C:\\course\\mappings" + UUID.randomUUID().toString() + ".txt");
+        file.toFile().getParentFile().mkdirs();
         Files.write(file, map, Charset.forName("UTF-8"));
 
 //        System.out.println(this.parseArticle(items.get(10)).Body);
@@ -145,13 +148,18 @@ public class Parser {
         ObjectMapper om = new ObjectMapper();
         try {
             System.out.println(om.writeValueAsString(items));
-            om.writeValue(new File("E:\\workspace\\zikentities" + start + "_" + limit + ".json"), items);
+            
+            
+            File nF = new File("C:\\workspace\\zikentities" + start + "_" + limit + ".json");
+            nF.getParentFile().mkdirs();
+            
+            om.writeValue(nF, items);
 
         } catch (JsonProcessingException ex) {
             Logger.getLogger(Main.class
                     .getName()).log(Level.SEVERE, null, ex);
         }
-
+//
 //        System.out.println("parsed zik list:" + articlesList.title());
     }
 

@@ -23,10 +23,7 @@ public class Parser {
 
     public Parser(GrammarRuleI... grammars) {
         this.grammars.addAll(Arrays.asList(grammars));
-    }
-
-    
-    
+    }    
     
     public Parser(GrammarRuleI[][] rules, ParserTokenPreprocessor[] pipelines) {
         

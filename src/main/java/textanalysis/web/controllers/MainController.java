@@ -74,12 +74,12 @@ public class MainController extends HttpController {
     public void analyzeAction() throws IOException {
 
         // read input data from file
-        String inputPath = "./input.txt";
-
-        byte[] encoded = Files.readAllBytes(Paths.get(inputPath));
-        String content = new String(encoded, Charset.forName("UTF8"));
-
-        this.params.put("text", content);
+//        String inputPath = "./input.txt";
+//
+//        byte[] encoded = Files.readAllBytes(Paths.get(inputPath));
+//        String content = new String(encoded, Charset.forName("UTF8"));
+//
+//        this.params.put("text", content);
 
         long startTime = System.currentTimeMillis();
 

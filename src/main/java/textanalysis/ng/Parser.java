@@ -125,46 +125,46 @@ public class Parser {
         }
 
         // shift repeatable rules to the terminal symbol if any
-        for (GrammarRuleI gr : this.grammars) {
-
-            visitAllRules(null,gr, (rule,parent) -> {
-                if (!rule.isSimple()) {
-
-                    ParserGrammar pg = (ParserGrammar) rule;
-                    System.out.print(" %%% -> ["+parent+"]" + ((ParserGrammar) rule).getName());
-                    if (pg.isRepeatable()) {
-                        System.out.print(" repeatable");
-                        if (pg.isInserted()) {
-                            System.out.print(" is_inserted");
-                        } else {
-                            System.out.print(" not_inserted");
-
-                            if (!pg.isFirstRun() && pg.getCurrentIndex() == 0) {
-                                System.out.print(" dirty");
-                                
-                                pg.setCurrentIndex(pg.rulesCount());
-                                
-                                if (parent != null) {
-                                    ParserGrammar pgp = (ParserGrammar) parent;
-                                    
-                                   
-                                    pgp.setCurrentIndex(pgp.getCurrentIndex()+1);
-                                    System.out.print(" shift_head["+pgp.getCurrentIndex()+"->"+(pgp.getCurrentIndex()+1)+"]");
-                                }
-                                
-                                
-                            }
-                            
-                        }
-
-                    }
-                    System.out.println("");
-
-                } else {
-//                    System.out.println(" [%%%] -> ");
-                }
-            });
-        }
+//        for (GrammarRuleI gr : this.grammars) {
+//
+//            visitAllRules(null,gr, (rule,parent) -> {
+//                if (!rule.isSimple()) {
+//
+//                    ParserGrammar pg = (ParserGrammar) rule;
+//                    System.out.print(" %%% -> ["+parent+"]" + ((ParserGrammar) rule).getName());
+//                    if (pg.isRepeatable()) {
+//                        System.out.print(" repeatable");
+//                        if (pg.isInserted()) {
+//                            System.out.print(" is_inserted");
+//                        } else {
+//                            System.out.print(" not_inserted");
+//
+//                            if (!pg.isFirstRun() && pg.getCurrentIndex() == 0) {
+//                                System.out.print(" dirty");
+//                                
+//                                pg.setCurrentIndex(pg.rulesCount());
+//                                
+//                                if (parent != null) {
+//                                    ParserGrammar pgp = (ParserGrammar) parent;
+//                                    
+//                                   
+//                                    pgp.setCurrentIndex(pgp.getCurrentIndex()+1);
+//                                    System.out.print(" shift_head["+pgp.getCurrentIndex()+"->"+(pgp.getCurrentIndex()+1)+"]");
+//                                }
+//                                
+//                                
+//                            }
+//                            
+//                        }
+//
+//                    }
+//                    System.out.println("");
+//
+//                } else {
+////                    System.out.println(" [%%%] -> ");
+//                }
+//            });
+//        }
 
         for (GrammarRuleI grule : this.grammars) {
 

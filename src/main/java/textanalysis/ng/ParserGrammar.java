@@ -205,7 +205,7 @@ public class ParserGrammar extends ComplexGrammarRule {
 //                   System.out.println("["+this.name+"]reducing ("+this.currentIndex+") to ("+(this.rules.size() - 1)+")");
 //                System.out.println("result is = " + result);
 
-                System.out.println(" _> "+cgr.isInserted());
+//                System.out.println(" _> "+cgr.isInserted());
 
                 if (!cgr.isRepeatable()) {
 
@@ -255,7 +255,7 @@ public class ParserGrammar extends ComplexGrammarRule {
         if (currentRule.equals(terminalRule) && this.stack.size() > 0) {
 
             result = this.stack.flatten();
-            System.out.println(">[" + this.currentIndex + "]>>>>FLAT (" + this.name + ") "+this.stack.size());
+//            System.out.println(">[" + this.currentIndex + "]>>>>FLAT (" + this.name + ") "+this.stack.size());
             if (!parentRepeatable) {
                 this.reset();
             }
@@ -268,7 +268,7 @@ public class ParserGrammar extends ComplexGrammarRule {
 //        }
 
         if (endOfStream && !isComplex) {            
-            System.out.println("-------:" + this.stack.size());
+//            System.out.println("-------:" + this.stack.size());
             SimpleGrammarRule sRule = (SimpleGrammarRule) currentRule;
 
             boolean repeatableAndHaveMatches = (sRule.repeatable && this.stack.have_matches_by_rule_index(this.currentIndex));
@@ -276,7 +276,7 @@ public class ParserGrammar extends ComplexGrammarRule {
 
             if ((repeatableAndHaveMatches || sRule.optional) && nextRuleIsTerminal) {
 
-                System.out.println("repeatableAndHaveMatches : " + this.stack.flatten());
+//                System.out.println("repeatableAndHaveMatches : " + this.stack.flatten());
 
                 result = this.stack.flatten();
                 this.reset();

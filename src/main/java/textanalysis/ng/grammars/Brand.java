@@ -18,7 +18,7 @@ public class Brand {
             //
             complex("Brand_Website",
                 simple(gram("LATIN")),
-                repeatable( // not works properly
+                complex( // not works properly
                     simple(eq(".")),
                     simple(gram("LATIN"))
 //                    optional(eq("-")),

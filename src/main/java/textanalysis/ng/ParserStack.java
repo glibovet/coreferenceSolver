@@ -10,6 +10,7 @@ public class ParserStack {
     /**
      * TODO make allocator reversed before foreach iteration
      *
+     * @param ruleIndex
      * @return
      */
     public boolean have_matches_by_rule_index(int ruleIndex) {
@@ -22,6 +23,10 @@ public class ParserStack {
         return false;
     }
 
+    /**
+     * @TODO: Should return list of ParserToken objects
+     * @return 
+     */
     public ArrayList<ParserMatch> flatten() {
 
         ArrayList<ParserMatch> result = new ArrayList();

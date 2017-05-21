@@ -9,6 +9,11 @@ import textanalysis.ng.RuleLabel;
 
 public class GrammarRule {
 
+    public static interface RuleVisitor {
+
+        public void visit(GrammarRuleI ruleToVisit,GrammarRuleI parent);
+    }
+
     public static SimpleGrammarRule repeatable(RuleLabel... labels) {
         SimpleGrammarRule result = new SimpleGrammarRule(labels);
 
@@ -36,21 +41,37 @@ public class GrammarRule {
 
         return result;
     }
-    
+
     /**
      * Anonymous complex rule. for use in nested complex rules
+     *
      * @param rules
-     * @return 
+     * @return
      */
-     public static ComplexGrammarRule complex(GrammarRuleI... rules) {
-         
-         String anonymousName = StringHelper.random(4);
-         
+    public static ComplexGrammarRule complex(GrammarRuleI... rules) {
+
+        String anonymousName = "lambda@" + StringHelper.random(4);
+
         ParserGrammar result = new ParserGrammar(anonymousName, rules);
 
         return result;
     }
-    
+
+    /**
+     * Gives ability to repeat bigger complex rules
+     *
+     * @param rules
+     * @return
+     */
+    public static ComplexGrammarRule repeatable(GrammarRuleI... rules) {
+
+        String anonymousName = "lambda@" + StringHelper.random(4);
+
+        ParserGrammar result = new ParserGrammar(anonymousName, rules);
+        result.setRepeatable(true);
+
+        return result;
+    }
 
     public static SimpleGrammarRule optional(RuleLabel... labels) {
         SimpleGrammarRule result = new SimpleGrammarRule(labels);
@@ -58,6 +79,22 @@ public class GrammarRule {
         result.optional = true;
 
         return result;
+    }
+
+    public static void visitAllRules(GrammarRuleI parent,GrammarRuleI root, RuleVisitor v) {
+        if (root.isSimple()) {
+            v.visit(root,parent);
+        } else {
+
+            ParserGrammar cgr = (ParserGrammar) root;
+            
+            v.visit(cgr,parent);
+            
+            for (GrammarRuleI r : cgr.getRules()) {
+                visitAllRules(cgr,r,v);
+            }
+
+        }
     }
 
 }

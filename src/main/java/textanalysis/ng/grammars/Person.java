@@ -104,12 +104,12 @@ public class Person {
              * possible not proper results
              *
              */
-            complex("PPerson_FirstLastName",
+            complex("PersonP_FirstLastName",
             simple(gram("fname"), not(gram("abbr")), capitalized(), any(gram("s"), gram("np"))),
             possibleLastname
             ),
             //
-            complex("PPerson_InitAndLastname",
+            complex("PersonP_InitAndLastname",
             simple(any(gram("fname"), gram("abbr"))),
             simple(gram("PUNCTUATION"), eq(".")),
             simple(any(gram("patr"), gram("abbr"), gnc_match(0, true))),
@@ -117,30 +117,30 @@ public class Person {
             possibleLastname
             ),
             //
-            complex("PPerson_LastnameAndInitials",
+            complex("PersonP_LastnameAndInitials",
             possibleLastname,
             simple(any(gram("fname"), gram("abbr"))),
             simple(gram("PUNCTUATION"), eq(".")),
             simple(any(gram("patr"), gram("abbr"), gnc_match(0, true))),
             simple(gram("PUNCTUATION"), eq("."))),
             //
-            complex("PPerson_FirstnameAsInitialsAndLastname",
+            complex("PersonP_FirstnameAsInitialsAndLastname",
             simple(any(gram("fname"), gram("abbr"))),
             simple(gram("PUNCTUATION"), eq(".")),
             possibleLastname),
             //
-            complex("PPerson_LastnameAndfirstnameAsInitials",
+            complex("PersonP_LastnameAndfirstnameAsInitials",
             possibleLastname,
             simple(any(gram("fname"), gram("abbr"))),
             simple(gram("PUNCTUATION"), eq("."))
             ),
-            complex("PPerson_Full",
+            complex("PersonP_Full",
             skip(not(all(gram("PUNCTUATION"), eq(".")), gram("END-OF-LINE"))),
             possibleLastname,
             possibleLastnameSecond,
             simple(gram("patr"), not(gram("abbr")), capitalized(), not(gram("p")), gnc_match(-1))
             ),
-            complex("PPerson_FirstLastUnknown",
+            complex("PersonP_FirstLastUnknown",
             skip(not(all(gram("PUNCTUATION"), eq(".")), gram("END-OF-LINE"))),
             possibleLastname,
             possibleLastnameSecond

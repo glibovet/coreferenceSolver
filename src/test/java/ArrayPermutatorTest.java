@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Test;
-import textanalysis.ng.ArrayPermutator;
+import textanalysis.ng.helpers.ArrayPermutator;
 
 /*
  * To change this license header, choose License Headers in Project Properties.

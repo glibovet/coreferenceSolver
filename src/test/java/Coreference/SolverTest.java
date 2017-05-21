@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package Tokenizer;
+package Coreference;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -11,9 +11,9 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import org.junit.Test;
+import static org.junit.Assert.*;
 import textanalysis.ng.GrammarMatch;
 import textanalysis.ng.Parser;
-import textanalysis.ng.ParserTokenizer;
 import textanalysis.ng.Rule.GrammarRuleI;
 import textanalysis.ng.grammars.Brand;
 import textanalysis.ng.grammars.Person;
@@ -24,10 +24,10 @@ import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
  *
  * @author Lenovo
  */
-public class TokenizerTest {
+public class SolverTest {
 
     @Test
-    public void parseArticle() throws IOException {
+    public void calculateIncompability() throws IOException {
 
         String sourcesDir = "C:\\course\\";
         String articleMappingPath = sourcesDir + "mappings975d7b41-9c46-44da-b07c-5ac7e03f3a9b.txt";
@@ -38,7 +38,7 @@ public class TokenizerTest {
 
         Parser entityParser = new Parser(
                 new GrammarRuleI[][]{
-                    Person.getGrammarRules(), // make this generic
+//                    Person.getGrammarRules(), // make this generic
                     Brand.getGrammarRules()
                 },
                 new ParserTokenPreprocessor[]{
@@ -46,18 +46,27 @@ public class TokenizerTest {
                     new DictionaryPreprocessor("Person/Position", "dictionaries/persons.txt")
                 });
 
-        for (String articleData : articleLines) {
-            long start = System.currentTimeMillis();
+//        for (String articleData : articleLines) {
+//            long start = System.currentTimeMillis();
+//
+//            String[] exploded = articleData.split(" ", 2);
+//
+//            String aContent = new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".txt")), Charset.forName("UTF-8"));
 
-            String[] exploded = articleData.split(" ", 2);
+            List<GrammarMatch> tokens = entityParser.extract(" Google Inc Website And Awesome : google.co.uk.and привет.");
+            int count = tokens.size();
 
-            String aContent = new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".txt")),Charset.forName("UTF-8"));
+//            System.out.println(exploded[0] + ":: -> " + count + " , took " + (System.currentTimeMillis() - start) + "ms. FT: " + tokens.get(0));
 
-            List<GrammarMatch> tokens = entityParser.extract(aContent);
-            int count = entityParser.extract(aContent).size();
-
-            System.out.println(exploded[0]+":: -> " + count + " , took " + (System.currentTimeMillis() - start) + "ms. FT: "+tokens.get(0));
-
+            
+            for (GrammarMatch gm: tokens) {
+            
+//                if (gm.matchedRule.getName().equals("Brand_Website")) {
+                    System.out.println(gm.matchedRule.getName());
+                    System.out.println("--> "+gm);
+//                }
+            }
+            
 //            if (ind++ % 200 == 0) {
 //
 //                
@@ -71,8 +80,6 @@ public class TokenizerTest {
 //
 ////                System.out.println("`" + exploded[0] + "` -> `" + tokens.get(0) + "`");
 //            }
-        }
-
-//        tokenizer.transform(text);
+//        }
     }
 }

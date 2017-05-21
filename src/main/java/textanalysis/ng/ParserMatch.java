@@ -9,4 +9,11 @@ public class ParserMatch {
         this.index = index;
         this.token = token;
     }
+
+    @Override
+    public String toString() {
+        return "ParserMatch{" + token + '}';
+    }
+    
+    
 }

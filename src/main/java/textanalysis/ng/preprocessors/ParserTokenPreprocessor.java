@@ -3,7 +3,7 @@ package textanalysis.ng.preprocessors;
 import com.zunama.Dawg;
 import java.util.ArrayList;
 import java.util.List;
-import textanalysis.ng.ArrayPermutator;
+import textanalysis.ng.helpers.ArrayPermutator;
 import textanalysis.ng.ParserToken;
 import textanalysis.ng.token.TokenForm;
 import textanalysis.ng.token.TokenPosition;

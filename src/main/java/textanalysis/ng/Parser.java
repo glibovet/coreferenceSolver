@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import org.languagetool.AnalyzedTokenReadings;
 import org.languagetool.tagging.uk.UkrainianTagger;
 import textanalysis.ng.Rule.GrammarRuleI;
+import static textanalysis.ng.helpers.GrammarRule.visitAllRules;
 import textanalysis.ng.token.TokenPosition;
 
 public class Parser {
@@ -23,14 +24,14 @@ public class Parser {
 
     public Parser(GrammarRuleI... grammars) {
         this.grammars.addAll(Arrays.asList(grammars));
-    }    
-    
+    }
+
     public Parser(GrammarRuleI[][] rules, ParserTokenPreprocessor[] pipelines) {
-        
-        for (GrammarRuleI[] group: rules) {
+
+        for (GrammarRuleI[] group : rules) {
             this.grammars.addAll(Arrays.asList(group));
         }
-     
+
         this.preprocessors.addAll(Arrays.asList(pipelines));
     }
 
@@ -39,15 +40,15 @@ public class Parser {
         return this;
     }
 
-    
     public List<ParserToken> getAllTokens() {
         return this.currentTokens;
     }
-    
+
     public ArrayList<GrammarMatch> extract(String text) {
-        
+
+        // remove all extra whitespaces
         text = text.replaceAll("\\s+", " ");
-        
+
         ArrayList<GrammarMatch> bigResult = new ArrayList();
 
         List<ParserToken> stream = this.tokenizer.transform(text);
@@ -93,7 +94,6 @@ public class Parser {
         // match with grammars
 //        int tokenIndex = 0;
 //        int lastInsertTokenIndex = 0;
-        
         this.currentTokens = stream;
 
         for (ParserToken token : stream) {
@@ -124,11 +124,54 @@ public class Parser {
 
         }
 
+        // shift repeatable rules to the terminal symbol if any
+        for (GrammarRuleI gr : this.grammars) {
+
+            visitAllRules(null,gr, (rule,parent) -> {
+                if (!rule.isSimple()) {
+
+                    ParserGrammar pg = (ParserGrammar) rule;
+                    System.out.print(" %%% -> ["+parent+"]" + ((ParserGrammar) rule).getName());
+                    if (pg.isRepeatable()) {
+                        System.out.print(" repeatable");
+                        if (pg.isInserted()) {
+                            System.out.print(" is_inserted");
+                        } else {
+                            System.out.print(" not_inserted");
+
+                            if (!pg.isFirstRun() && pg.getCurrentIndex() == 0) {
+                                System.out.print(" dirty");
+                                
+                                pg.setCurrentIndex(pg.rulesCount());
+                                
+                                if (parent != null) {
+                                    ParserGrammar pgp = (ParserGrammar) parent;
+                                    
+                                   
+                                    pgp.setCurrentIndex(pgp.getCurrentIndex()+1);
+                                    System.out.print(" shift_head["+pgp.getCurrentIndex()+"->"+(pgp.getCurrentIndex()+1)+"]");
+                                }
+                                
+                                
+                            }
+                            
+                        }
+
+                    }
+                    System.out.println("");
+
+                } else {
+//                    System.out.println(" [%%%] -> ");
+                }
+            });
+        }
+
         for (GrammarRuleI grule : this.grammars) {
 
             ParserGrammar grammar = (ParserGrammar) grule;
 
-            ArrayList<ParserMatch> match = grammar.reduce(true);
+            ArrayList<ParserMatch> match = grammar.reduce(true, false);
+
             if (match.size() > 0) {
                 bigResult.add(new GrammarMatch(grammar, match));
 
@@ -146,7 +189,7 @@ public class Parser {
         Collections.sort(matches, (a, b) -> {
             return b.tokensMatched.size() - a.tokensMatched.size();
         });
-        
+
         // i don't actually if there is need to create this class
         class MatchAndPos {
 
@@ -163,7 +206,7 @@ public class Parser {
         ArrayList<MatchAndPos> positions = new ArrayList();
 
         for (GrammarMatch m : matches) {
-            positions.add(new MatchAndPos(m.getPosition(),m));
+            positions.add(new MatchAndPos(m.getPosition(), m));
         }
 
         Collections.sort(positions, (a, b) -> {
@@ -172,8 +215,7 @@ public class Parser {
 
         TokenPosition currentSpan = null;
         GrammarMatch gm = null;
-            
-        
+
         int i = 0;
         boolean allAdded = false;
         for (MatchAndPos tp : positions) {
@@ -191,7 +233,7 @@ public class Parser {
                     gm = tp.match;
                     if (i == positions.size()) {
                         allAdded = true;
-                    }    
+                    }
                 } else if (tp.pos.start == currentSpan.start) { // the same start
                     if (tp.pos.end <= currentSpan.end) {
 //                        System.out.println("CONTAIN or SAME(" + tp + ")");
@@ -209,11 +251,11 @@ public class Parser {
             }
 
         }
-        
+
         if (!allAdded) {
             result.add(gm);
         }
-        
+
         return result;
 //        tree = IntervalTree()
 //        for (grammar, match) in matches:

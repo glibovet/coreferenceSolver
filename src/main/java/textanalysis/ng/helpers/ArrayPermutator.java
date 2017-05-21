@@ -1,4 +1,4 @@
-package textanalysis.ng;
+package textanalysis.ng.helpers;
 
 import java.util.ArrayList;
 import java.util.Collections;

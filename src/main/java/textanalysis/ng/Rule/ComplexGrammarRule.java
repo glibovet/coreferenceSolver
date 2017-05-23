@@ -2,6 +2,7 @@ package textanalysis.ng.Rule;
 
 import java.util.ArrayList;
 import textanalysis.ng.ParserMatch;
+import textanalysis.ng.ParserStack;
 import textanalysis.ng.ParserToken;
 
 public abstract class ComplexGrammarRule implements GrammarRuleI {
@@ -9,6 +10,7 @@ public abstract class ComplexGrammarRule implements GrammarRuleI {
     protected boolean inserted = false;
     protected int currentIndex = 0;
 
+    protected ParserStack stack = new ParserStack();
     protected boolean firstRun = true;
     protected ArrayList<GrammarRuleI> rules = new ArrayList();
 

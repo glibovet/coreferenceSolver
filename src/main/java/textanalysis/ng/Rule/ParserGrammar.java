@@ -1,12 +1,16 @@
-package textanalysis.ng;
+package textanalysis.ng.Rule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import textanalysis.ng.ParserMatch;
+import textanalysis.ng.ParserStack;
+import textanalysis.ng.ParserToken;
 import textanalysis.ng.Rule.ComplexGrammarRule;
 import textanalysis.ng.Rule.GrammarRuleI;
 import textanalysis.ng.Rule.SimpleGrammarRule;
+import textanalysis.ng.RuleLabel;
 
 public class ParserGrammar extends ComplexGrammarRule {
 
@@ -15,8 +19,6 @@ public class ParserGrammar extends ComplexGrammarRule {
     }
 
     protected String name = "";
-
-    private ParserStack stack = new ParserStack();
 
     public ParserGrammar() {
     }

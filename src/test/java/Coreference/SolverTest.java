@@ -6,17 +6,14 @@
 package Coreference;
 
 import java.io.IOException;
-import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
 import org.junit.Test;
-import static org.junit.Assert.*;
 import textanalysis.ng.GrammarMatch;
 import textanalysis.ng.Parser;
 import textanalysis.ng.Rule.GrammarRuleI;
 import textanalysis.ng.grammars.Brand;
-import textanalysis.ng.grammars.Person;
 import textanalysis.ng.preprocessors.DictionaryPreprocessor;
 import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
 
@@ -38,7 +35,7 @@ public class SolverTest {
 
         Parser entityParser = new Parser(
                 new GrammarRuleI[][]{
-//                    Person.getGrammarRules(), // make this generic
+                    //                    Person.getGrammarRules(), // make this generic
                     Brand.getGrammarRules()
                 },
                 new ParserTokenPreprocessor[]{
@@ -52,21 +49,18 @@ public class SolverTest {
 //            String[] exploded = articleData.split(" ", 2);
 //
 //            String aContent = new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".txt")), Charset.forName("UTF-8"));
-
-            List<GrammarMatch> tokens = entityParser.extract(" Google Inc Website And Awesome : google.co.uk.and привет.");
-            int count = tokens.size();
+        List<GrammarMatch> tokens = entityParser.extract(" Google Inc Website And Awesome : google.co.uk.and привет.");
+        int count = tokens.size();
 
 //            System.out.println(exploded[0] + ":: -> " + count + " , took " + (System.currentTimeMillis() - start) + "ms. FT: " + tokens.get(0));
+        for (GrammarMatch gm : tokens) {
 
-            
-            for (GrammarMatch gm: tokens) {
-            
 //                if (gm.matchedRule.getName().equals("Brand_Website")) {
-                    System.out.println(gm.matchedRule.getName());
-                    System.out.println("--> "+gm);
+            System.out.println(gm.matchedRule.getName());
+            System.out.println("--> " + gm);
 //                }
-            }
-            
+        }
+
 //            if (ind++ % 200 == 0) {
 //
 //                

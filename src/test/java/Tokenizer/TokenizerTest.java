@@ -16,6 +16,7 @@ import textanalysis.ng.Parser;
 import textanalysis.ng.ParserTokenizer;
 import textanalysis.ng.Rule.GrammarRuleI;
 import textanalysis.ng.grammars.Brand;
+import textanalysis.ng.grammars.GeoPlace;
 import textanalysis.ng.grammars.Person;
 import textanalysis.ng.preprocessors.DictionaryPreprocessor;
 import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
@@ -39,10 +40,14 @@ public class TokenizerTest {
         Parser entityParser = new Parser(
                 new GrammarRuleI[][]{
                     Person.getGrammarRules(), // make this generic
-                    Brand.getGrammarRules()
+                    Brand.getGrammarRules(),
+                    GeoPlace.getGrammarRules()
                 },
                 new ParserTokenPreprocessor[]{
                     new DictionaryPreprocessor("Org/Education", "dictionaries/org_education.txt"),
+                    new DictionaryPreprocessor("Org/Commercial", "dictionaries/org_commercial.txt"),
+                    new DictionaryPreprocessor("Org/Abbr", "dictionaries/org_abbr.txt"),
+                    new DictionaryPreprocessor("Org/Social", "dictionaries/org_social.txt"),
                     new DictionaryPreprocessor("Person/Position", "dictionaries/persons.txt")
                 });
 
@@ -51,13 +56,14 @@ public class TokenizerTest {
 
             String[] exploded = articleData.split(" ", 2);
 
-            String aContent = new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".txt")),Charset.forName("UTF-8"));
+            String aContent = new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".txt")), Charset.forName("UTF-8"));
 
             List<GrammarMatch> tokens = entityParser.extract(aContent);
             int count = entityParser.extract(aContent).size();
 
-            System.out.println(exploded[0]+":: -> " + count + " , took " + (System.currentTimeMillis() - start) + "ms. FT: "+tokens.get(0));
-
+            if (count > 0) {
+//                System.out.println(exploded[0] + ":: -> " + count + " , took " + (System.currentTimeMillis() - start) + "ms. FT: " + tokens.get(0));
+            }
 //            if (ind++ % 200 == 0) {
 //
 //                

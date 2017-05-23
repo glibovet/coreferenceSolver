@@ -1,9 +1,10 @@
 package textanalysis.ng.helpers;
 
 import com.trg.helpers.StringHelper;
-import textanalysis.ng.ParserGrammar;
+import textanalysis.ng.Rule.ParserGrammar;
 import textanalysis.ng.Rule.ComplexGrammarRule;
 import textanalysis.ng.Rule.GrammarRuleI;
+import textanalysis.ng.Rule.OrGrammar;
 import textanalysis.ng.Rule.SimpleGrammarRule;
 import textanalysis.ng.RuleLabel;
 
@@ -21,6 +22,16 @@ public class GrammarRule {
 
         return result;
     }
+    
+     public static SimpleGrammarRule repeatable_optional(RuleLabel... labels) {
+        SimpleGrammarRule result = new SimpleGrammarRule(labels);
+
+        result.repeatable = true;
+        result.optional = true;
+
+        return result;
+    }
+     
 
     public static SimpleGrammarRule skip(RuleLabel... labels) {
         SimpleGrammarRule result = new SimpleGrammarRule(labels);
@@ -34,6 +45,10 @@ public class GrammarRule {
         SimpleGrammarRule result = new SimpleGrammarRule(labels);
 
         return result;
+    }
+    
+    public static ComplexGrammarRule any(ComplexGrammarRule ... rules) {
+        return new OrGrammar(rules);
     }
 
     public static ComplexGrammarRule complex(String name, GrammarRuleI... rules) {
@@ -72,7 +87,7 @@ public class GrammarRule {
 
         return result;
     }
-
+    
     public static SimpleGrammarRule optional(RuleLabel... labels) {
         SimpleGrammarRule result = new SimpleGrammarRule(labels);
 

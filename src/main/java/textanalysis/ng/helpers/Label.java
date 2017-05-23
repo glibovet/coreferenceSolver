@@ -1,5 +1,9 @@
 package textanalysis.ng.helpers;
 
+import java.util.ArrayList;
+import textanalysis.ng.ParserMatch;
+import textanalysis.ng.ParserToken;
+import textanalysis.ng.Rule.GrammarRuleI;
 import textanalysis.ng.Rule.Labels.All;
 import textanalysis.ng.Rule.Labels.Any;
 import textanalysis.ng.Rule.Labels.Capitalized;
@@ -41,7 +45,7 @@ public class Label {
     public static RuleLabel any(RuleLabel... rules) {
         return new Any(rules);
     }
-
+    
     public static RuleLabel not(RuleLabel... rules) {
         return new Not(rules);
 
@@ -49,10 +53,23 @@ public class Label {
 
     public static RuleLabel all(RuleLabel... rules) {
         return new All(rules);
-    }
-
-    public static RuleLabel dictionary(String[] dict) {
+    }    
+    
+    public static RuleLabel dictionary(String ... dict) {
         return new Dictionary(dict);
     }
+    
+    
+    public static RuleLabel longer(int x) {
+        return new RuleLabel() {
+            @Override
+            public boolean check(ParserToken token, ArrayList<ParserMatch> localStack) {
+               return (token.value.length() > x);
+            }
+            
+        };
+    }
+    
+    
 
 }

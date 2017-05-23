@@ -1,5 +1,6 @@
 package textanalysis.ng;
 
+import textanalysis.ng.Rule.ParserGrammar;
 import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
 import java.io.IOException;
 import java.util.ArrayList;

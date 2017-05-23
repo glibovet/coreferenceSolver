@@ -16,6 +16,13 @@ public class LatinToken extends TokenType {
 
         form.addGrammeme("LATIN");
 
+        boolean roman = value.trim().matches("^M{0,4}(CM|CD|D?C{0,3})(XC|XL|L?X{0,3})(IX|IV|V?I{0,3})$");
+
+        if (roman) {
+            form.addGrammeme("NUMBER");
+            form.addGrammeme("ROMAN");
+        }
+
         forms.add(form);
 
         return new ParserToken(value, new TokenPosition(start, end), forms);

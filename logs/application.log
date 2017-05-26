@@ -1,0 +1,35 @@
+2017-05-26 03:55:20,540 - [ERROR] - from spark.http.matching.GeneralError in qtp452624442-13
+				
+
+org.jtwig.parser.ParseException: classpath:templates/tagging.twig (Line: 3, Column: 10) -> Block identifier not specified
+{% block "content" %}
+         ^
+	at org.jtwig.parser.parboiled.ParboiledJtwigParser.parse(ParboiledJtwigParser.java:61) ~[jtwig-core-5.65.jar:na]
+	at org.jtwig.parser.cache.InMemoryConcurrentPersistentTemplateCache.get(InMemoryConcurrentPersistentTemplateCache.java:39) ~[jtwig-core-5.65.jar:na]
+	at org.jtwig.parser.CachedJtwigParser.parse(CachedJtwigParser.java:19) ~[jtwig-core-5.65.jar:na]
+	at org.jtwig.JtwigTemplate.render(JtwigTemplate.java:96) ~[jtwig-core-5.65.jar:na]
+	at org.jtwig.JtwigTemplate.render(JtwigTemplate.java:73) ~[jtwig-core-5.65.jar:na]
+	at spark.template.jtwig.JtwigTemplateEngine.render(JtwigTemplateEngine.java:60) ~[spark-template-jtwig-2.5.5.jar:na]
+	at spark.TemplateViewRouteImpl$1.render(TemplateViewRouteImpl.java:61) ~[spark-core-2.6.0.jar:na]
+	at spark.TemplateViewRouteImpl$1.render(TemplateViewRouteImpl.java:58) ~[spark-core-2.6.0.jar:na]
+	at spark.TemplateViewRouteImpl.render(TemplateViewRouteImpl.java:86) ~[spark-core-2.6.0.jar:na]
+	at spark.http.matching.Routes.execute(Routes.java:62) ~[spark-core-2.6.0.jar:na]
+	at spark.http.matching.MatcherFilter.doFilter(MatcherFilter.java:130) ~[spark-core-2.6.0.jar:na]
+	at spark.embeddedserver.jetty.JettyHandler.doHandle(JettyHandler.java:50) [spark-core-2.6.0.jar:na]
+	at org.eclipse.jetty.server.session.SessionHandler.doScope(SessionHandler.java:1568) [jetty-server-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:141) [jetty-server-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:132) [jetty-server-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.server.Server.handle(Server.java:564) [jetty-server-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:317) [jetty-server-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:251) [jetty-server-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:279) [jetty-io-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:110) [jetty-io-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.io.ChannelEndPoint$2.run(ChannelEndPoint.java:124) [jetty-io-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.util.thread.Invocable.invokePreferred(Invocable.java:128) [jetty-util-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.util.thread.Invocable$InvocableExecutor.invoke(Invocable.java:222) [jetty-util-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.doProduce(EatWhatYouKill.java:294) [jetty-util-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.util.thread.strategy.EatWhatYouKill.produce(EatWhatYouKill.java:126) [jetty-util-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:672) ~[jetty-util-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:590) ~[jetty-util-9.4.4.v20170414.jar:9.4.4.v20170414]
+	at java.lang.Thread.run(Thread.java:745) ~[na:1.8.0_91]
+

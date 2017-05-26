@@ -49,8 +49,7 @@ public class ConvertInputTextsToSentences {
                 //                        complex(
                 repeatable(gram("PUNCTUATION"), any(eq("."), eq("?"), eq("!"))) //                        )
                 //                    )
-                ,
-                 skip(any(capitalized(),gram("END-OF-LINE")))
+               
         );
 
         /**

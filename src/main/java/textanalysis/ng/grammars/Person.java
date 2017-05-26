@@ -85,7 +85,7 @@ public class Person {
             ),
             //
             complex("Person_Lastname",
-            simple(gram("lname"), not(gram("abbr"), gram("prop")), capitalized(), not(gram("p")))
+            simple(gram("lname"), not(gram("abbr")), capitalized(), not(gram("p")))
             ),
             //
             complex("Person_Middlename",
@@ -150,11 +150,11 @@ public class Person {
             simple(gram("noun"), gram("anim"), not(gram("p")), gnc_match(-1))
             ),
             //
-            complex("Person_UnnamedPronoun",
-            skip(not(all(gram("PUNCTUATION"), eq(",")))),
-            simple(gram("&pron"), gram("noun")),
-            skip(any(gram("verb"), gram("noun")))
-            ),
+//            complex("Person_UnnamedPronoun",
+//            skip(not(all(gram("PUNCTUATION"), eq(",")))),
+//            simple(gram("&pron"), gram("noun")),
+//            skip(any(gram("verb"), gram("noun")))
+//            ),
             //
             complex("Person_UnnamedPosition",
             simple(gram("Person/Position"), not(gram("p")))

@@ -2,15 +2,27 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>Тег META, атрибут charset</title>
+        <title>Coreference resolution text tagger</title>
     </head>
     <body> 
-        <div class="content" style="padding:10px;margin:0 auto; width:1200px;font-family:arial;text-align:justify;font-size:22px;line-height:30px"> 
-            <div class="text col-md-9" id="text" ></div>
-            <div class="selectedTags col-md-3"><h3>Selected tokens</h3>
+        <div class="content" style="padding:10px;margin:0 auto; width:1300px;font-family:arial;text-align:justify;font-size:22px;line-height:30px"> 
+            <div class="text col-md-8" id="text" >
+            </div>
+            <div class="selectedTags col-md-4"><h3>Selected tokens <span class="h6 curNp" style="color:#C7c7c7;font-weight:bold"></span></h3>
                 <div id="currentStack">
-
-
+                </div>
+                <div class="stack-control-panel" style="display:none">
+                    <div class="form-group">
+                        <select class="entType form-control" >
+                            <option value="1">PERSON</option>
+                            <option value="2">ORGANISATION</option>
+                            <option value="3">GEO</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-success saveSequence">Add</button>
+                        <button class="btn btn-warning cancelSequence">Clear</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,37 +61,129 @@
             }
 
 
+            .npt1 {
+                background-color:red;
+                padding:3px;
+                opacity:0.2;
+                color:white;
+            }
+
+            .npt2 {
+                background-color:brown;
+                padding:3px;
+                opacity:0.2;
+                color:white;
+            }
+
+            .npt3 {
+                background-color:blue;
+                padding:3px;
+                opacity:0.2;
+                color:white;
+            }
+
+
+
         </style>
         <script>
 
             var wordsStack = {};
+            var stackLength = 0;
+            var curNpId = null;
+            var nps = {};
+
+            // got from https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
+            function randomAlpha(length) {
+
+                if (typeof length === 'undefined') {
+                    length = 5;
+                }
+
+                var text = "";
+                var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+                for (var i = 0; i < length; i++)
+                    text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+                return text;
+            }
 
             function clone(x) {
                 return JSON.parse(JSON.stringify(x));
             }
 
+            function clearStack(eCb) {
+
+                for (var ind in wordsStack) {
+                    $('.t' + ind).removeClass('sT');
+
+                    if (typeof eCb !== 'undefined') { // pass current jQ obj to callback
+                        eCb(ind);
+                    }
+
+                }
+
+                stackLength = 0;
+
+                var oldStack = clone(wordsStack);
+                wordsStack = {};
+
+                redrawCurrentStack(function (i, el) {
+                    return "<div class=sTag><span class=n>" + i + "</span> " + el + "</div>";
+                });
+
+                curNpId = randomAlpha(8);
+
+                console.log('new npId = ' + curNpId)
+
+                return oldStack;
+            }
+
+            $('.saveSequence').on('click', function () {
+
+                var npType = $('.entType').val();
+
+                nps[curNpId] = {
+                    val: clearStack(function (id) {
+                        $(".t" + id).addClass('npt' + npType)
+                        console.log('adding npt' + npType + " class ")
+                    }),
+                    type: npType
+                };
+
+                curNpId = randomAlpha(8);
+                console.log('new npId = ' + curNpId)
+
+            });
+
+            $('.cancelSequence').on('click', function () {
+                clearStack();
+            });
+
             $('#text').on('click', 'span', function (e) {
                 if (!e.ctrlKey) {
                     var nStack = clone(wordsStack);
                     nStack[$(this).data('t')] = $(this).text();
-
                     if (!checkStack(nStack)) {
-                        alert("tokens selected for one entity should be siblings of one another")
+                        wordsStack = fillStackProperly(nStack)
                     } else {
 
                         $(this).toggleClass('sT');
-
                         var tI = $(this).data('t');
                         if (typeof wordsStack[tI] != 'undefined') {
                             delete wordsStack[tI];
+                            stackLength--;
                         } else {
                             wordsStack[tI] = $(this).text();
+                            stackLength++;
                         }
 
-                        redrawCurrentStack(function (i, el) {
-                            return "<div class=sTag><span class=n>" + i + "</span> " + el + "</div>";
-                        });
+
                     }
+
+                    redrawCurrentStack(function (i, el) {
+                        return "<div class=sTag><span class=n>" + i + "</span> " + el + "</div>";
+                    });
                 } else {
                     alert(JSON.stringify($(this).data('forms')))
 
@@ -88,19 +192,14 @@
 
             document.addEventListener('keydown', function (event) {
                 if (event.keyCode == 13) {
-
-                    console.log(wordsStack)
-
                     var neStack = Object.values(wordsStack).join(' ');
-
                     prompt("enter type of named entity matched `" + neStack + "` ");
                     console.log(neStack)
 
                     wordsStack = [];
-
+                    stackLength = 0;
                 }
             });
-
             /*
              * Checks whether stack contains tokens that are all siblings of each other
              */
@@ -115,15 +214,43 @@
                         }
                     }
                     prevIndex = parseInt(ind);
-
                     cycleIndex++;
                 }
                 return true;
             }
-            function redrawCurrentStack(tokenVisitor) {
-                console.log('redrawing current stack')
 
+            /**
+             * Fills the stack with all  selected items 
+             * @param {type} stack
+             * @returns {Boolean}
+             */
+            function fillStackProperly(stack) {
+
+                var prevIndex = 0;
+                var cycleIndex = 0;
+                for (var ind in stack) {
+                    if (cycleIndex !== 0) {
+                        if (parseInt(ind) - prevIndex > 1) {
+                            for (var i = prevIndex; i <= parseInt(ind); i++) {
+                                stack[i] = $('.t' + i).text();
+                                $('.t' + i).addClass('sT');
+                            }
+                        }
+                    }
+                    prevIndex = parseInt(ind);
+                    cycleIndex++;
+                }
+                return stack;
+            }
+
+
+            function redrawCurrentStack(tokenVisitor) {
                 var container = document.getElementById('currentStack')
+
+                if (curNpId == null) {
+                    curNpId = randomAlpha(8);
+                }
+                $('.curNp').text(curNpId)
 
                 if (typeof tokenVisitor == 'undefined') {
                     tokenVisitor = function (i, e) {
@@ -136,7 +263,17 @@
                     out += tokenVisitor(ind, wordsStack[ind]);
                 }
 
+                if (stackLength > 0) {
+                    $('.stack-control-panel').show();
+                } else {
+                    $('.stack-control-panel').hide();
+                }
+
                 container.innerHTML = out;
+            }
+
+
+            function redrawNps() {
 
             }
 
@@ -146,7 +283,6 @@
 
             function constructTextFromTokens(tokens, tokenVisitor) {
                 var ot = '';
-
                 if (typeof tokenVisitor == 'undefined') {
                     tokenVisitor = function (i, e) {
                         return e.v;
@@ -155,7 +291,6 @@
 
                 var prevToken = tokens[0];
                 ot += prevToken.v;
-
                 // construct the text
                 var i = 0;
                 for (var ind in tokens) {
@@ -165,7 +300,6 @@
                     }
 
                     var cT = tokens[ind];
-
                     if ((prevToken.ep + 1) === cT.sp) {
                         ot += " ";
                     }
@@ -180,10 +314,8 @@
                 return ot;
             }
 
-
             var wholeText = {{tokens}};
                     var matches = {{json}};
-
             var text = constructTextFromTokens(wholeText.tokens, function (i, token) {
                 return "<span data-t=" + i + " class='t" + i + "' data-forms='" + JSON.stringify(token.f) + "'>" + token.v + "</span>";
             })

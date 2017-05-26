@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import textanalysis.ng.NormalizationType;
+import textanalysis.ng.ParserToken;
 import textanalysis.ng.RuleLabel;
 
 public class SimpleGrammarRule implements GrammarRuleI {
@@ -45,5 +46,21 @@ public class SimpleGrammarRule implements GrammarRuleI {
     @Override
     public boolean active() {
         return this.active;
+    }
+
+    /**
+     * Local stack is null because we don't have info about stack here. so no gnc_match or similar can be used here
+     * @param pt
+     * @return 
+     */
+    public boolean checkLocal(ParserToken pt) {
+        for (RuleLabel rl : this.labels) {
+            if (!rl.check(pt, null)) {
+                return false;
+            } 
+        }
+        
+        return true;
+        
     }
 }

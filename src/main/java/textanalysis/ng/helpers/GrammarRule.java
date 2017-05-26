@@ -1,6 +1,5 @@
 package textanalysis.ng.helpers;
 
-import com.trg.helpers.StringHelper;
 import textanalysis.ng.Rule.ParserGrammar;
 import textanalysis.ng.Rule.ComplexGrammarRule;
 import textanalysis.ng.Rule.GrammarRuleI;

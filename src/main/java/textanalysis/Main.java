@@ -112,6 +112,7 @@ public class Main {
 
         // prepare proper title names for articles
         // its terrible but i don't have a time for better code
+        System.out.println("prefetching data into memory ...");
         for (String article : articleLines) {
             String[] exploded = article.split(" ", 2);
 
@@ -125,9 +126,10 @@ public class Main {
 
             articles.put(exploded[0], arti);
         }
+        System.out.println("Done!");
 
         // set port of web server to 8081
-        port(8080);
+        port(80);
 
         get("/ner/tagger", (rq, rs) -> {
             Map data = new HashMap();

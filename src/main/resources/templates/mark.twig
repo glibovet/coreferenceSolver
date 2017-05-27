@@ -8,21 +8,24 @@
         <div class="content" style="padding:10px;margin:0 auto; width:1300px;font-family:arial;text-align:justify;font-size:22px;line-height:30px"> 
             <div class="text col-md-8">
                 <div class="h4">
-                    <a href="/ner/marker/{{article_id}}" class="textId">{{article_id}}</a>
                     <button class="btn btn-default">
-                        <a href="/ner/marker">
-                            <span class="glyphicon glyphicon glyphicon-random"></span>
+                        <a href="/ner/tagger">
+                            <span class="glyphicon glyphicon-menu-hamburger"></span>
                         </a>
                     </button>
+                    <a href="/ner/marker/{{article_id}}" class="textId">{{article_id}}</a>
+                    <a href="/ner/marker" class="randomText">
+                        <button class="btn btn-default">
+
+                            <span class="glyphicon glyphicon glyphicon-random"></span>
+
+                        </button>
+                    </a>
                     <button class="btn btn-{% if not(article.tagged) %}info{% else %}success{% endif %} saveBtn">Save</button>
                 </div>
                 <div class="h3"></div>
             </div>
             <div class="col-md-4">
-                <div class="tabs">
-                    <div class="dataTab">Tokens</div>
-                    <div class="dataTab">
-                </div>
                 <h3>Selected tokens <span class="h6 curNp" style="color:#C7c7c7;font-weight:bold"></span></h3>    
             </div>
             <div class="text col-md-8" id="text" >
@@ -108,10 +111,16 @@
             var wordsStack = {};
             var stackLength = 0;
             var curNpId = null;
+
+            var lastInsertedId = '';
+
             var nps = {% if article.neData != "" %}{{article.neData}}{% else %}{}{% endif %};
+            var npsChanges = 0;
 
             // got from https://stackoverflow.com/questions/1349404/generate-random-string-characters-in-javascript
             function randomAlpha(length) {
+
+
 
                 if (typeof length === 'undefined') {
                     length = 5;
@@ -137,6 +146,7 @@
 
                     for (var neToken in nps[neInd]['val']) {
                         $(".t" + neToken).addClass('npt' + typeOfNe)
+                        $(".t" + neToken).attr('data-pc', neInd);
                     }
                 }
             }
@@ -144,7 +154,10 @@
             function clearStack(eCb) {
 
                 for (var ind in wordsStack) {
+
+                    // remove selection class
                     $('.t' + ind).removeClass('sT');
+
 
                     if (typeof eCb !== 'undefined') { // pass current jQ obj to callback
                         eCb(ind);
@@ -161,43 +174,73 @@
                     return "<div class=sTag><span class=n>" + i + "</span> " + el.val + "</div>";
                 });
 
-                curNpId = randomAlpha(8);
-
-                console.log('new npId = ' + curNpId)
-
                 return oldStack;
             }
 
-            $('.saveSequence').on('click', function () {
-
-                var npType = $('.entType').val();
+            function saveNewTokenSequence(npType) {
 
                 nps[curNpId] = {
                     val: clearStack(function (id) {
                         $(".t" + id).addClass('npt' + npType)
-                        console.log('adding npt' + npType + " class ")
+                        $(".t" + id).attr('data-pc', curNpId);
                     }),
                     type: npType
                 };
 
+                lastInsertedId = curNpId;
                 curNpId = randomAlpha(8);
-                console.log('new npId = ' + curNpId)
+                npsChanges++;
+            }
 
-            });
-
-
-            $(".saveBtn").on('click', function () {
-
-                var that = $(this);
+            function saveChanges(cb) {
+                var that = $(".saveBtn");
 
                 $.post('/ner/markerSave', {
                     id: $('.textId').text(),
                     data: JSON.stringify(nps)
                 }, function (response) {
-
+                    npsChanges = 0;
                     that.removeClass('btn-info').addClass('btn-success')
-
+                    if (typeof cb !== 'undefined') {
+                            cb(response);
+                    }
                 });
+            }
+
+            function tryDeleteNe(id) {
+
+                for (var tInd in nps[id]['val']) {
+                    $('.t' + tInd).removeClass('npt' + nps[id]['type'])
+                    $('.t' + tInd).removeProp('data-pc');
+                }
+
+                delete nps[id];
+                npsChanges++;
+            }
+
+
+            $('.saveSequence').on('click', function () {
+                var npType = $('.entType').val();
+
+                saveNewTokenSequence(npType);
+            });
+
+
+            $(".randomText").on('click', function (e) {
+                if (npsChanges) {
+                    if (confirm('You forget to save document. Want to save it now?')) {
+                        
+                        saveChanges(function(){
+                            alert('Changes saved');
+                        });
+                        
+                        return false;
+                    }
+                }
+            });
+
+            $(".saveBtn").on('click', function () {
+                saveChanges();
             });
 
             $('.cancelSequence').on('click', function () {
@@ -206,25 +249,40 @@
 
             $('#text').on('click', 'span', function (e) {
                 if (!e.ctrlKey) {
-                    var nStack = clone(wordsStack);
-                    nStack[$(this).data('t')] = $(this).text();
-                    if (!checkStack(nStack)) {
-                        wordsStack = fillStackProperly(nStack)
+
+                    var possibleNpe = $(this).data('pc');
+
+                    if (typeof possibleNpe !== 'undefined') {
+                        if (stackLength > 0) {
+                            alert(" You should clear current stack to work with named entity stack");
+                        } else {
+                            console.log(possibleNpe)
+                            if (confirm("Do you really want to remove selected named entity?")) {
+                                tryDeleteNe(possibleNpe);
+                            }
+                        }
                     } else {
 
-                        $(this).toggleClass('sT');
-                        var tI = $(this).data('t');
-                        if (typeof wordsStack[tI] != 'undefined') {
-                            delete wordsStack[tI];
-                            stackLength--;
+                        var nStack = clone(wordsStack);
+                        nStack[$(this).data('t')] = $(this).text();
+                        if (!checkStack(nStack)) {
+                            wordsStack = fillStackProperly(nStack)
                         } else {
-                            wordsStack[tI] = {
-                                val: $(this).text(),
-                                sp: $(this).data('sp'),
-                                ep: $(this).data('ep')
-                            }
 
-                            stackLength++;
+                            $(this).toggleClass('sT');
+                            var tI = $(this).data('t');
+                            if (typeof wordsStack[tI] != 'undefined') {
+                                delete wordsStack[tI];
+                                stackLength--;
+                            } else {
+                                wordsStack[tI] = {
+                                    val: $(this).text(),
+                                    sp: $(this).data('sp'),
+                                    ep: $(this).data('ep')
+                                }
+
+                                stackLength++;
+                            }
                         }
                     }
 
@@ -238,36 +296,32 @@
             })
 
             document.addEventListener('keydown', function (event) {
+
+                var types = [49, 50, 51];
                 
-                var types = [49,50,51];
                 
-                if (event.keyCode == 13) {
-                    var neStack = Object.values(wordsStack).join(' ');
-                    prompt("enter type of named entity matched `" + neStack + "` ");
-                    console.log(neStack)
+                if (event.keyCode === 83 && event.ctrlKey) {
+                     event.preventDefault();
+                     saveChanges();
+                }
+                
+                if (event.keyCode === 90 && event.ctrlKey) {
 
-                    wordsStack = [];
-                    stackLength = 0;
-                } else if (types.indexOf(event.keyCode) !== -1){
-                    var npType = event.keyCode - 48;
-                 
-                   if (stackLength > 0) {
-                 
-                        nps[curNpId] = {
-                            val: clearStack(function (id) {
-                            $(".t" + id).addClass('npt' + npType)
-                            console.log('adding npt' + npType + " class ")
-                        }),
-                            type: npType
-                        };
-
-                        curNpId = randomAlpha(8);      
-
-                        console.log('added new word')
+                    if (lastInsertedId !== '') {
+                        tryDeleteNe(lastInsertedId);
                     } else {
-                        
+                        alert('no actions to undo')
+                    }
+
+                }
+
+                if (types.indexOf(event.keyCode) !== -1) {
+                    var npType = event.keyCode - 48;
+
+                    if (stackLength > 0) {
+                        saveNewTokenSequence(npType);
+                    } else {
                         alert('Empty word sequence')
-                        
                     }
                 }
             });

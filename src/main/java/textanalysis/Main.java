@@ -58,7 +58,7 @@ public class Main {
             this.neData = data.toJson(new JsonWriterSettings(true));
 
             Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sourcesDir + this.id + ".json"), "UTF-8"));
-            
+
             try {
                 out.write(this.neData);
             } finally {
@@ -70,7 +70,7 @@ public class Main {
         }
     }
 
-    private final static String sourcesDir = "C:\\course_data\\zik\\";
+    private static String sourcesDir = "C:\\course_data\\zik\\";
     private final static Random randomGenerator = new Random();
     private final static Map<String, Article> articles = new HashMap();
 
@@ -93,6 +93,10 @@ public class Main {
     }
 
     public static void main(String[] args) throws IOException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
+
+        if (args.length > 0) {
+            sourcesDir = args[0];
+        }
 
         textanalysis.ng.Parser entityParser = new textanalysis.ng.Parser(
                 new GrammarRuleI[][]{ //                    Person.getGrammarRules(), // make this generic
@@ -123,7 +127,7 @@ public class Main {
         }
 
         // set port of web server to 8081
-        port(80);
+        port(8080);
 
         get("/ner/tagger", (rq, rs) -> {
             Map data = new HashMap();

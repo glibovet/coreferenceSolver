@@ -10,7 +10,7 @@ public class CyrillicToken extends TokenType {
 
     public CyrillicToken() {
         // и - can't be the first literal
-        super("cyrillic", "[а-яєёїґі][а-яёєїґі\\'\\-]*");
+        super("cyrillic", "[а-яєёїґі][а-яёєїґі\\'\\-’]*");
     }
 
     @Override

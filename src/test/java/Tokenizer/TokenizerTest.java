@@ -27,7 +27,7 @@ import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
  */
 public class TokenizerTest {
 
-    @Test
+//    @Test
     public void parseArticle() throws IOException {
 
         String sourcesDir = "C:\\course\\";

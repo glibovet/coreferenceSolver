@@ -23,7 +23,7 @@ import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
  */
 public class SolverTest {
 
-    @Test
+//    @Test
     public void calculateIncompability() throws IOException {
 
         String sourcesDir = "C:\\course\\";

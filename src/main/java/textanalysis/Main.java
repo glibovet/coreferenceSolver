@@ -1,7 +1,11 @@
 package textanalysis;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -18,8 +22,6 @@ import spark.ModelAndView;
 import textanalysis.ng.GrammarMatch;
 import textanalysis.ng.ParserToken;
 import textanalysis.ng.Rule.GrammarRuleI;
-import textanalysis.ng.grammars.Brand;
-import textanalysis.ng.grammars.Person;
 import textanalysis.ng.preprocessors.ParserTokenPreprocessor;
 import textanalysis.ng.token.TokenForm;
 
@@ -48,6 +50,24 @@ public class Main {
             this.body = body;
             this.tagged = tagged;
         }
+
+        String neData = "";
+
+        public void setNeData(Document data) throws IOException {
+
+            this.neData = data.toJson(new JsonWriterSettings(true));
+
+            Writer out = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(sourcesDir + this.id + ".json"), "UTF-8"));
+            
+            try {
+                out.write(this.neData);
+            } finally {
+                out.close();
+            }
+
+            this.tagged = true;
+
+        }
     }
 
     private final static String sourcesDir = "C:\\course_data\\zik\\";
@@ -75,9 +95,8 @@ public class Main {
     public static void main(String[] args) throws IOException, IllegalArgumentException, NoSuchFieldException, IllegalAccessException {
 
         textanalysis.ng.Parser entityParser = new textanalysis.ng.Parser(
-                new GrammarRuleI[][]{
-                    Person.getGrammarRules(), // make this generic
-                    Brand.getGrammarRules()
+                new GrammarRuleI[][]{ //                    Person.getGrammarRules(), // make this generic
+                //                    Brand.getGrammarRules()
                 },
                 new ParserTokenPreprocessor[]{ //                    new DictionaryPreprocessor("Org/Education", "dictionaries/org_education.txt",simple(not(gram("verb")))),
                 //                    new DictionaryPreprocessor("Person/Position", "dictionaries/persons.txt",simple(not(gram("verb"))))
@@ -94,11 +113,17 @@ public class Main {
 
             File path = new File(sourcesDir + exploded[0] + ".json");
 
-            articles.put(exploded[0], new Article(exploded[0], exploded[1], new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".txt")), Charset.forName("UTF-8")), path.exists()));
+            Article arti = new Article(exploded[0], exploded[1], new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".txt")), Charset.forName("UTF-8")), path.exists());
+
+            if (path.exists()) {
+                arti.neData = new String(Files.readAllBytes(Paths.get(sourcesDir + exploded[0] + ".json")));
+            }
+
+            articles.put(exploded[0], arti);
         }
 
         // set port of web server to 8081
-        port(8081);
+        port(80);
 
         get("/ner/tagger", (rq, rs) -> {
             Map data = new HashMap();
@@ -226,6 +251,8 @@ public class Main {
             data.put("title", art.title);
             data.put("article_id", art.id);
 
+            data.put("article", art);
+
             jsonTokens.put("tokens", jt);
 
             data.put("tokens", jsonTokens.toJson());
@@ -238,21 +265,24 @@ public class Main {
         };
 
         get("/ner/marker/:document", markerHandler, new JtwigTemplateEngine());
+
         get("/ner/marker", markerHandler, new JtwigTemplateEngine());
 
+        // save tagged data 
+        post("/ner/markerSave", (req, res) -> {
+            res.type("application/json");
+
+            String documentId = req.queryMap().get("id").value();
+            Document data = Document.parse(req.queryMap().get("data").value());
+
+            articles.get(documentId).setNeData(data);
+
+            Document response = new Document("state", true);
+            response.put("got", data.toJson(new JsonWriterSettings(true)));
+            response.put("got_id", documentId);
+
+            return response.toJson();
+        });
+
     }
-
-    public static String getHexColor() {
-
-        int RANDOM_HEX_LENGTH = 6;
-
-        Random randomService = new Random();
-        StringBuilder sb = new StringBuilder();
-        while (sb.length() < RANDOM_HEX_LENGTH) {
-            sb.append(Integer.toHexString(randomService.nextInt()));
-        }
-        sb.setLength(RANDOM_HEX_LENGTH);
-        return sb.toString();
-    }
-
 }

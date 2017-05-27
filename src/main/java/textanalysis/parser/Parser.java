@@ -87,6 +87,7 @@ public class Parser {
             Path file = Paths.get("C:\\course\\" + uid + ".txt");
             file.toFile().getParentFile().mkdirs();
             
+            // TODO also write the title into the file.
             Files.write(file, post.Body, Charset.forName("UTF-8"));
 
         }

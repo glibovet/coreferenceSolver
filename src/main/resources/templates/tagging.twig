@@ -5,7 +5,7 @@
         {% for text in texts %}
             <div class="col-sm-4 col-md-2" >
                 <a href="/ner/marker/{{text.id}}">
-                    <div class="thumbnail" style="border: 2px solid {% if not(text.tagged) %}red{% else %}green{% endif %}">
+                    <div class="thumbnail" style="border: 2px solid {% if not(text.tagged) %}gray{% else %}red{% endif %}">
                         <div class="caption">
                             <h3 style="  width: 150px;
                                 overflow:hidden; font-size:13px;

@@ -26,7 +26,7 @@ import static textanalysis.ng.helpers.Label.*;
  */
 public class ConvertInputTextsToSentences {
 
-    @Test
+//    @Test
     public void convert() throws IOException {
 
         String sourcesDir = "C:\\course\\";
